@@ -1,0 +1,4 @@
+# We don't want to save the rendered html files (for now at least)
+build
+**.DS_Store
+/.pydevproject
