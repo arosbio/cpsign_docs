@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-====================
+####################
 CPSign Documentation
-====================
+####################
 
-CPSign is a tool for modeling in cheminformatics using Conformal Prediction (CP) with the Signatures molecular descriptor and Support Vector Machines (SVM).
+CPSign is a tool for modeling in cheminformatics using Conformal Prediction and probabilistic predictions using the Signatures molecular descriptor and Support Vector Machines (SVM). CPSign leverages `CDK <https://cdk.github.io/>`_ for cheminformatics, and uses `LibLinear <https://liblinear.bwaldvogel.de/>`_ and `LibSVM <https://github.com/jeffheaton/libsvm-java>`_ for machine learning tasks. 
 
 
 Table of Contents

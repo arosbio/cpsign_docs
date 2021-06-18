@@ -2,6 +2,16 @@
 
 This project is used for documenting CPSign using [Sphinx](http://www.sphinx-doc.org/en/stable/). Pages are written in [reStructuredText](http://docutils.sourceforge.net/rst.html) format.
 
+## Header conventions
+Note that reStructuredText does not define any unique order of how headers/titles should be shown, instead it's based on the order they appear in each document. For convenience we should use the conventions outlined in the [Python dev style guide](https://devguide.python.org/documenting/#sections):
+
+- \# with overline, for parts
+- \* with overline, for chapters
+- =, for sections
+- -, for subsections
+- ^, for subsubsections
+- ", for paragraphs
+
 ## Build documentation locally
 
 You need to have Python, [Sphinx](http://www.sphinx-doc.org/en/stable/) and the [ReadTheDocs scheme](https://github.com/snide/sphinx_rtd_theme) installed on your machine, which can be installed using `pip`: 
