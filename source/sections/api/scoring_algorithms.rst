@@ -20,100 +20,71 @@ CPSign currently leverages the two machine learning libraries LibLinear_ and Lib
 
 Overview
 =========================
-All machine learning methods implements the interface :code:`MLAlgorithm` and one or more of the interfaces located in the package :code:`com.arosbio.modeling.ml.algorithms`. All currently available classes are registered as services and can be retrieved using Java ServiceLoader functionality, e.g., :code:`ServiceLoader.load(MLAlgorithm.class);`. All available parameters for each individual algorithm can be set using setters on each class, but can also (for the convenience of gridsearch and the CLI) be retrieved using the :code:`Configurable` interface, using the :code:`[get|set]ConfigParameters` methods. The :code:`ConfigParameter` objects can tell you, e.g., which parameters that will be included in a parameter tuning by default when :code:`GridSearch#search(..)` is called without an explicit parameter grid. Furthermore, the parameters of each algorithm is set to appropriate defaults for cheminformatics in conjunction with the Signatures Molecular Descriptor (where earlier studies has produced such defaults), or the defaults used in their respective implementations in remaining cases. For further details about each algorithm, we refer to their respective websites LibLinear_ and LibSvm_.
+All machine learning methods implements the interface :code:`MLAlgorithm` and one or more of the interfaces located in the package :code:`com.arosbio.modeling.ml.algorithms`. All currently available classes are registered as services and can be retrieved using Java ServiceLoader functionality, e.g., :code:`ServiceLoader.load(MLAlgorithm.class);`. All available parameters for each individual algorithm can be set using setters on each class, but can also (for the convenience of gridsearch and the CLI) be retrieved using the :code:`Configurable` interface, using the :code:`[get|set]ConfigParameters(..)` methods. The :code:`ConfigParameter` objects can tell you, e.g., which parameters that will be included in a parameter tuning by default when :code:`GridSearch#search(..)` is called without an explicit parameter grid. Furthermore, the parameters of each algorithm is set to appropriate defaults for cheminformatics in conjunction with the Signatures Molecular Descriptor (where earlier studies has produced such defaults), or the defaults used in their respective implementations in remaining cases. For further details about each algorithm, we refer to the respective websites of LibLinear_ and LibSvm_. The Following two tables outline the algorithms and their implemented interfaces. 
 
+
+.. _regressors_tbl:
+
+.. table:: **Regression algorithms**
+   :align: center
+
+   +--------------------+-----+
+   |                    | SVR |
+   +====================+=====+
+   | LinearSVR          |  *  |
+   +--------------------+-----+
+   | EpsilonSVR / NuSVR |  *  |
+   +--------------------+-----+
+
+
+
+.. _classifiers_tbl:
+
+.. table:: **Classification algorithms**
+   :align: center
+
+   +--------------------+----------------------+------------------+-------------------+-------------------------------+
+   |                    | MultiLabelClassifier | BinaryClassifier | ScoringClassifier | PseudoProbabilisticClassifier |
+   +====================+======================+==================+===================+===============================+
+   | LinearSVC          | *                    | *                |         *         |                               |
+   +--------------------+----------------------+------------------+-------------------+-------------------------------+
+   | C_SVC / NuSVC      | *                    | *                |         *         |                               |
+   +--------------------+----------------------+------------------+-------------------+-------------------------------+
+   | | PlattScaledC_SVC | *                    | *                |         *         |               *               |
+   | | PlattScaledNuSVC |                      |                  |                   |                               |
+   +--------------------+----------------------+------------------+-------------------+-------------------------------+
+   | LogisticRegression | *                    | *                |         *         |               *               |
+   +--------------------+----------------------+------------------+-------------------+-------------------------------+
 
 Regression algorithms
 =========================
 
 LinearSVR
 -----------
-Support Vector Regression (SVR) implemented in LibLinear_. Restricted to a linear kernel and optimized for fast training and predictions for the linear case (should be prefered over LIBSVM implementation with a linear kernel)
+Support Vector Regression (SVR) implemented in LibLinear_. Restricted to a linear kernel and optimized for fast training and predictions for linear kernel SVM. When having very large data sets this algorithm is prefered as runtime is much quicker than the other regression algorithms.
 
 
-
-EpsilonSVR
-------------
-Support Vector Regression (SVR) implemented in LIBSVM
-
-NuSVR
--------
-Support Vector Regression (SVR) implemented in LIBSVM. Uses :code:`nu` parameter instead of :code:`C`.
+EpsilonSVR / NuSVR
+------------------
+Support Vector Regression (SVR) implemented in LibSvm_. The difference between these two algorithms is that the standard :code:`cost/C` parameter (used in EpsilonSVR) is re-parameterized into :code:`nu` (used in NuSVR). The :code:`nu` parameter should be in the range [0..1]. Supports the following kernels: (0) LINEAR, (1) POLY, (2) RBF, (3) SIGMOID.
 
 
 
 Classification algorithms
 =========================
 
-Linear SVC
+LinearSVC
 ------------
+Support Vector Classification (SVC) implemented in LibLinear_. Restricted to a linear kernel and optimized for fast training and predictions for linear kernel SVM. Typically the fastest algorithm to train, and thus most appropriate when dealing with large data sets.
 
 
-
-SVC
-------------
-
-
+C_SVC / NuSVC
+--------------
+Support Vector Classification (SVC) implemented in LibSvm_. The difference between these two algorithms is that the standard :code:`cost/C` parameter (used in C_SVC) is re-parameterized into :code:`nu` (used in NuSVC). The :code:`nu` parameter should be in the range [0..1]. Supports the following kernels: (0) LINEAR, (1) POLY, (2) RBF, (3) SIGMOID.
 
 
+PlattScaledC_SVC / PlattScaledNuSVC
+-----------------------------------
+These two algorithms are based on the :code:`C_SVC` and :code:`NuSVC` algorithms, but performs an internal 5-fold data set split and uses `Platt Scaling <https://en.wikipedia.org/wiki/Platt_scaling>`_ to output propabilities for each class (thus fitting 5 SVC models). These are generally slower to train, but needed in cases when using a nonconformity measure that requires probabilities as input. 
 
 
-
-MLAlgorithm wrapping
---------------------
-
-CPSign wraps LibLinear and LibSvm java implementation in the classes :code:`LibLinear` and :code:`LibSvm` 
-to provide a generic interface to the user. Instantiation can be done either directly by the constructors
-of the classes or by the :code:`CPSignFactory`: using:
-
-.. code-block:: java
-   
-   // Direct instantiation 
-   LibLinear libLin = new LibLinear(new Parameter(SolverType.L1R_L2LOSS_SVC, c, eps));
-   
-   // Using default parameters in CPSign
-   CPSignFactory factory = ...; // Instantiate 
-   LibLinear libLin = factory.createLibLinearClassification(); // classification
-   LibLinear libLin = factory.createLibLinearRegression(); // regression
-   
-   // Direct instantiation of LibSvm
-   LibSvm svm = new LibSvm(new svm_parameter()); // set your parameters on the svm_parameter object
-   
-   // Using factory
-   factory.createLibSvmClassification();
-   factory.createLibSvmRegression();
-
-Setting custom parameters
--------------------------
-
-By default CPSign uses parameters for LibLinear and LibSVM that has been found to produce good results together with
-signatures descriptors :ref:`[6] <refs>`. However, it is possible to to set all LibLinear and LibSVM parameters
-programmatically through the API. This is mostly important when performing predictions where data come from
-other sources than derived from signatures. Setting parameters are as straightforward as: 
-
-.. code-block:: java
-   
-   // For LibLinear 
-   // Create a LibLinear object either with classification or regression settings
-   LibLinear liblin = factory.createLibLinearClassification();
-   LibLinearParameters params = liblin.getParameters();
-   
-   // Either set parameters one by one
-   params.setC(newC);
-   params.setEpsilon(newEpsilon);
-   
-   // Or create new parameters from scratch
-   Parameter liblinParams = new Parameter(SolverType.L1R_LR, 100, 0.5);
-   liblin.setParameters(liblinParams);
-   
-   // For LibSvm
-   // Create a LibSvm object either for classification or regression
-   LibSvm impl = factory.createLibSvmClassification();
-   LibSvmParameters params = impl.getParameters();
-   
-   // Or create new parameters from scratch
-   svm_parameter svmParams = new svm_parameter();
-   svmParams.C = 100;
-   svmParams.eps = 0.5;
-   liblin.setParameters(svmParams);
-   
