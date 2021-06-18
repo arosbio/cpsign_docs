@@ -31,7 +31,6 @@ The available CPSign programs are:
    /sections/cli/crossvalidate
    /sections/cli/validate
    /sections/cli/gensign
-   /sections/cli/version
    /sections/cli/check-version
    /sections/cli/check-license
    /sections/cli/explain

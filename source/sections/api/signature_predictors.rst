@@ -1,11 +1,9 @@
 .. _sign_predictors: 
 
-.. |br| raw:: html
 
-   <br />
- 
+####################
 Signatures Predictor
-====================
+####################
 
 A Signatures Predictor are a wrapper put on top of a :ref:`Predictor <predictors>`, adding useful functionality 
 for handling predictions made for chemical compounds described with the signatures descriptor :ref:`[2]<refs>`.
