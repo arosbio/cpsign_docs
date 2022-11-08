@@ -14,13 +14,21 @@ Note that reStructuredText does not define any unique order of how headers/title
 
 ## Build documentation locally
 
-You need to have Python, [Sphinx](http://www.sphinx-doc.org/en/stable/) and the [ReadTheDocs scheme](https://github.com/snide/sphinx_rtd_theme) installed on your machine, which can be installed using `pip`: 
+### Installation of required packages
+
+You need to have Python, [Sphinx](http://www.sphinx-doc.org/en/stable/) and the [ReadTheDocs scheme](https://github.com/snide/sphinx_rtd_theme) installed on your machine, which can either be installed using `pip`: 
 ```
 pip install --user sphinx
 pip install --user sphinx-rtd-theme
 ```
-Run `make html` from the base of the directory. This will build the html-files and put them in the `build`-subfolder. Open the `index.html` file in `build`-directory and
-check your changes.
+Or by `conda` using the supplied conda environment file:
+```
+conda env create -f conda.env.yml
+```
+
+### Run build
+
+Run `make html` from the root directory of the repository. This will build the html-files and put them in the `build/html` subfolder. Open the `index.html` file and check your changes.
 
 ## Update 'live' documentation
 
