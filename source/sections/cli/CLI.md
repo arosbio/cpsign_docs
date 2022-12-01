@@ -1,10 +1,3 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
 
 (cli)=
 
@@ -12,11 +5,11 @@ substitutions:
 
 CPSign can be used for number of different task within machine learning and compound chemistry. The standard flow of action are these steps:
 
-1. (*Optional*) Use {ref}`Tune <tune>` to find optional SVM settings for your dataset (otherwise good default ones are used according to {ref}`[6] <refs>`).
-2. (*Optional*) Use {ref}`Precompute <precompute>` to convert chemical file format into a sparse numerical representation.
-3. Use {ref}`Train <train>` to train the predictor (not required for TCP, but greatly speeds up the prediction time!).
+1. Use {ref}`Precompute <precompute>` to compute descriptors from input chemical data, yielding a `precomputed dataset`.
+2. (*Optional*) Use {ref}`Tune <tune>` or {ref}`Tune-scorer <tune-scorer>` to find optimal hyperparameters for your particular data (otherwise default parameters are used according to {ref}`[6] <refs>`).
+3. Use {ref}`Train <train>` to train the predictor (optional for TCP - where the {ref}`Online-predict <online-predict>` program can be used instead)
 4. Use {ref}`Predict <predict>` to predict new compound(s).
-5. (*Optional*) Use {ref}`Validate <validate>` to validate the model, if you have an external test-set.
+5. (*Optional*) Use {ref}`Validate <validate>` to validate the model, if you have an external test/validation-set.
 
 The available CPSign programs are:
 
@@ -30,171 +23,71 @@ The available CPSign programs are:
 /sections/cli/predict
 /sections/cli/online-predict
 /sections/cli/tune
+/sections/cli/tune-scorer
 /sections/cli/crossvalidate
 /sections/cli/validate
 /sections/cli/gensign
 /sections/cli/check-version
-/sections/cli/check-license
 /sections/cli/explain
 ```
 
-This page contains the general options. For each specific program, please follow the links above or use the
-navigation on the left.
+This page contains the general options. For each specific program, please follow the links above or use the navigation on the left.
 
 ```{contents} Table of Contents
 :backlinks: top
 :depth: 3
 ```
 
+## Running CPSign
+Running `CPSign` on the command line requires having the "Uber JAR" (i.e. the Java archive including all dependencies). This jar is a [really executable JAR](https://github.com/brianm/really-executable-jars-maven-plugin), meaning that it can be called as a program on the command line using a `./cpsign-[version]-uber.jar` type call on linux/mac systems. This internally calls `java -jar <jvm arguments> <cpsign-[version]-uber.jar>`. Depending on how you download the jar, you may have to change file permissions using e.g. `chmod` in order allow it to be executed. 
+
+You may also use a standard `java -jar <jvm arguments> cpsign-[version]-uber.jar` call in order to give custom jvm arguments, e.g. in case you need to give the jvm more memory if you have a large data set. For simplicity, this web site will use the shorter `./cpsign-[version]-uber.jar` in all examples, but all these can be replaced with the longer `java -jar ..` invocation instead. 
+
 ## Get usage help
 
-Usage information can be accessed both at the top level, which will give
-information about which program commands that are accepted:
+Usage information can be accessed both at the top level, which will give information about which program commands that are accepted:
 
 ```bash
-> java -jar cpsign-[version].jar
-...
-The following main program commands are accepted:
-      precompute
-      train
-      aggregate
-      fast-aggregate
-      predict
-      online-predict
-      tune
-      crossvalidate
-      validate
-      gensign
-      version
-      check-version
-      check-license
-      explain
+> ./cpsign-[version]-uber.jar
+``` 
 
-To see the parameters for each program, run the command:
-
-   java -jar cpsign-1.0.0.jar [program]
-```
-
-Usage help is splitted up for each program. Required parameters are marked with an asterisk (\*) before the parameter. All
-parameters that take arguments has the required type of the argument specified after the parameter-flags. Example:
+or for each program, here exemplified for the `precompute` command:
 
 ```bash
-> java -jar cpsign-[version].jar precompute -h
+> ./cpsign-[version]-uber.jar precompute
+``` 
 
-   ...
-
-   General:
-  * --license                                [URI | path]
-       Path or URI to license file
-    -h  | --help | man
-       Get help text
-    --short
-       Use shorter help text (used together with the --help argument)
-    --logfile                                [path]
-       Path to a user-set logfile, will be specific for this run
-    --silent
-       Silent mode (only print output to logfile)
-    --echo
-       Echo the input arguments given to CPSign
-    --seed                                   [integer]
-       Set this flag if an explicit RNG seed should be used in tasks that require a RNG
-       (randomization of training data, splitting in cross-validation, learning algorithms
-       etc). Not used by all programs.
-    --progress-bar
-       Add a Progress bar in the system error output
-    --progress-bar-ascii
-       Add a Progress bar in ASCII in the system error output
-    --time
-       Print wall-time for all individual steps in execution
-
-   ...
-```
-
-So the flag `--license` takes either a **URI** (Unified Resource Identifier) or a **path** which is a standard file-path
-on your computer. Parameters that are not followed by **"\[type\]"** are flags that does not accept any further arguments to be passed.
-
-Note that the help-text will be written either by omitting to pass any argument after the **"\[program\]"**, or by adding the -h/\\--help/man flag.
-
-### Less verbose help
-
-The help/manual text is rather verbose, you can opt for a only getting the parameters and not the help text for each parameter by
-adding the `--short` flag:
+### Detailed explanation of parameters using the `explain` program
+Some flags and input require more information than can easily fit in the usage help page of individual programs, such information can instead be viewed using the `explain` program:
 
 ```bash
-> java -jar cpsign-[version].jar precompute -h --short
-
-   ...
-
-   General:
-  * --license                                [URI | path]
-    -h  | --help | man
-    --short
-    --logfile                                [path]
-    --silent
-    --echo
-    --seed                                   [integer]
-    --progress-bar
-    --progress-bar-ascii
-    --time
-
-   ...
+> ./cpsign-[version]-uber.jar explain
 ```
 
-### Parameters for a single section
-
-In case you wish to only get parameters for a given section of parameters, let us say the input, then
-you can add "input" after the program as follows:
-
-```bash
-> java -jar cpsign-[version].jar precompute input -h --short
-
-                                        precompute
- ------------------------------------------------------------------------------------------
-
-   Input:
-     -mt | --model-type                       [id | text]
-     -td | --train-data                       [URI | path]
-     -e  | --endpoint                         [text]
-     -l  | --labels                           [label label]
-```
+Running the above will list the available topics where more information can be retrieved.
 
 ## Giving multiple arguments for a single parameter
 
-For some parameters, such as classification labels, possible SVM parameters to try out in tune etc, you will have
-to pass multiple arguments for a single flag. This is done fairly straightforwardly by separating the arguments
-by either a whitespace character (blank space, tab etc), a comma (,) or both. If you have a text argument that already
-contain any of these characters you wrap the arguments in quotation-marks, e.g. `--labels "positive class" "negative class"`.
+For some parameters, such as classification labels or grid parameters in tune etc, you will have to pass multiple arguments for a single flag. This is done fairly straightforwardly by separating the arguments by either a whitespace character (blank space, tab etc), a comma (,) or both. If you have a text argument that already contain any of these characters you wrap the arguments in quotation-marks, e.g. `--labels "positive class" "negative class"`.
 
 ## Fuzzy-matching and case-insensitive arguments
 
-All parameter flags need to match to be written 100% correctly, but the arguments for the flags can in most cases be
-shortened or misspelled (to some degree). This can in some cases lead to unexpected results if the argument happened
-to have a better "fuzzy score" with some other argument. We thus recommend that you write out the arguments correctly each time,
-in case you have unexpected failures or behavior, make sure to check your arguments.
+All parameter flags need to match to be written 100% correctly, but the arguments for the flags can in most cases be shortened or misspelled (to some degree). This can in some cases lead to unexpected results if the argument happened to have a better "fuzzy score" with some other argument. We thus recommend that you write out the arguments correctly each time, in case you have unexpected failures or behavior, make sure to check your arguments.
 
-CPSign is also case-insensitive, both for parameter flags and their arguments.
+CPSign is also case-insensitive for most arguments, but not for the flags and program names.
 
 ## Use a configuration file
 
-The command line tool supports **@syntax**, meaning that all parameters can be specified in files so that you do not have to rewrite
-all parameters for each run. You can also use multiple files and mix file and plain arguments on the command line. Note that each
-parameter must come on a new line, even the flag and it's argument must be separated by a new line
+The command line tool supports **@syntax**, meaning that all parameters can be specified in files so that you do not have to rewrite all parameters for each run. You can also use multiple files and mix file and plain arguments on the command line.
 
-**Note** The command name (i.e. train, predict etc.) always have to come as the first parameter, regardless if parameters are specified in
-a configuration file or as parameters passed directly.
+**Note:** The program argument (e.g. `train` or `predict`) always have to come as the first parameter, regardless if parameters are specified in a configuration file or as parameters passed directly.
 
 train_config.txt:
 
-```
+```text
 train
---license
-/path/to/cpsign0.3-standard.license
---predictor-type
-2
---calibration-ratio
-0.1
---nr-models
-10
+--predictor-type 2
+--data-set <path>
 --time
 ...
 ```
@@ -211,17 +104,17 @@ Example in bash:
 
 ```bash
 > # An absolute path
-> java -jar cpsign-[version].jar \
+> ./cpsign-[version]-uber.jar \
         @/Users/username/runconfigs/train_config.txt \
         [other options]
 
 > # A user home relative path
-> java -jar cpsign-[version].jar \
+> ./cpsign-[version]-uber.jar \
         @~/runconfigs/train_config.txt \
         [other options]
 
-> # A realtive path
-> java -jar cpsign-[version].jar \
+> # A relative path
+> ./cpsign-[version]-uber.jar \
         @../runconfigs/train_config.txt \
         [other options]
 ```
@@ -242,145 +135,38 @@ C:\Users\User\CPSign> java -jar cpsign-1.0.0.jar @../CPSign/runconfigs/train_con
 C:\Users\User\CPSign> java -jar cpsign-1.0.0.jar @..\CPSign\runconfigs\train_config.txt
 ```
 
-## Get jar version
-
-To get the unique CPSign jar-version including build-tag, that is more specific than the major.minor.patch version, there is now a
-program `version` that returns the version of CPSign.
-
-```bash
-> java -jar cpsign-1.0.0.jar version
-
- CPSign - Conformal Prediction with the signatures molecular descriptor.
- © 2019, Aros Bio AB, www.arosbio.com
- Version: 1.0.0.20190829_144526
-```
-
-## Program aliases
-
-Some of the programs has aliases, to see potential aliases you simply add **aliases** after the program name:
-
-```bash
-> java -jar cpsign-0.7.0.jar crossvalidate aliases
-
-Aliases for program crossvalidate:
-        cv
-```
-
-## Shorten CLI calls
-
-Consider using an [alias] to shorten the CLI calls, i.e. so that {code}`java -jar cpsign-[version].jar` is not
-needed to be written each time. For instance you can do this at the beginning of each bash-script
-by adding e.g. {code}`RUN="java -jar cpsign-[version].jar"` and then reuse it when running programs, calling e.g. train
-by {code}`$RUN train ....`. If several scripts are used, and from different directories, it might be better to setup an [alias]
-using {code}`alias cpsign="java -jar /full/path/to/jar/cpsign-[version].jar"` and then use it anywhere with {code}`cpsign train ...`.
-
 ## Configure Logging & Output
 
-CPSign is by default configured to write information on the screen and to a rather verbose log-file that will be written in the same
-directory of the jar file. However, you can configure CPSign to run in **silent mode**, meaning that no output will be written on the screen.
-If you desire to have a separate logfile for each run or if the user does not have write-access to the directory where the CPSign-jar is located,
-it's also possible to configure this.
+CPSign will by default write information on the screen and to a rather verbose log file that will be written in the same directory of where CPSign is run from. However, you can configure CPSign to run in **silent mode** using the `-q, --quiet, --silent` flag, meaning that no output will be written on the screen (except if the run fails for some reason, e.g. bad input, the error messages will be printed to the system error stream). If you do not want to generate a log file this can be achieved by giving the `--no-logfile` flag, or if you wish to write the log in a separate location, e.g. having a separate log for each run, this is configured using the `--logfile <path>` parameter.
 
-Flag: `--silent` {{ br }}
-Description: Disables output written to screen, will only be written to the cpsign.log file.
 
-```bash
-> java -jar cpsign-[version].jar [program] --silent [other options]
-```
+## :-syntax
 
-Flag: `--logfile` {{ br }}
-Description: Supply the path of a per-run specific log-file. OBS the logfile with overwrite old files if they already exists. This
-option also removes the logging to the standard cpsign.log and only logs to the specified file.
+To reduce the number of parameters-flags in CPSign and to create a more natural grouping of arguments, CPSign uses ':-syntax' for many of its arguments. What this means is that sub-parameters are specified together with the parameter itself by separating the arguments and subsequent sub-arguments with a `:` character. E.g. when specifying the scorer-implementation and its unique arguments such as kernel-type, kernel-parameters, cost, epsilon, etc. The available sub-arguments are specific for each scorer-implementations and can be retrieved from the corresponding help-menu. 
 
-```bash
-> java -jar cpsign-[version].jar [program] --logfile /path/to/logfile.log [other options]
-```
+The :-syntax can either be specified with the sub-parameters explicitly named or by using the order of the parameters. The general usage is either (in explicit form):
 
-## Using a license file
+`
+<param-flag> <main-argument>:<sub-param-1-name>=<sub-param-1-value>:<sub-param-2-name>=<sub-param-2-value>
+`
 
-You need a valid license file in order to run CPSign.
+or, if the order of the sub-parameters is known:
 
-```bash
-> java -jar cpsign-[version].jar [program] \
-   --license /path/to/Standard-license.license \
-   [other options]
-```
+`
+<param-flag> <main-argument>:<sub-param-1-value>:<sub-param-2-value>
+`
 
-## Selecting predictor type
+In the first case, the order of the parameters is not important, whereas in the second, short hand syntax, the order is critical. Mixing of explicit and short hand arguments is allowed as long as the short hand parameters all come before any argument in explicit form (otherwise the order is ambiguous). Note that the order of sub-parameters may change between versions of CPSign so the explicit version should be preferred for setting up scripts that can be used over a longer time.
 
-For programs like {ref}`train <train>` and {ref}`tune <tune>`, the predictor type must be given.
-
-Flag:    `-pt` | `--ptype` | `--predictor-type` {{ br }}
-Options:
-
-Predictor type:
-: - 1. ACP Classification
-  - 2. ACP Regression
-  - 3. TCP Classification
-  - 5. CVAP Classification
-
-Default: 1
-
-Example:
+### Example
+Consider the example of setting the scorer to be `LinearSVC` and setting the parameters `cost` and `epsilon` to 100 and 0.01, respectively. Running `explain scorer` shows that cost is the first parameter and epsilon is the second, thus the following arguments are identical.
 
 ```bash
-> java -jar cpsign-[version].jar [program] -pt 2 [other options]
+> [other parameters] --scorer LinearSVC:100:0.01
+> [other parameters] --scorer LinearSVC:epsilon=0.01:cost=100
+> [other parameters] --scorer LinearSVC:100:epsilon=0.01
 ```
 
-## Selecting modeling implementation
-
-Apart from selecting predictor type, you also have to select the underlying modeling implementation that
-should be used (also called scoring algorithm).
-
-Flag:    `-i` | `--impl` {{ br }}
-Options:
-
-> - 1. LibLinear
-> - 2. LibSvm
-> - 3. ProbabilisticLibSvm
-
-Default: 1
-
-Example (use libsvm instead of liblinear):
-
-```bash
-> java -jar cpsign-[version].jar [program] -i libsvm [other options]
-```
-
-## Signature heights
-
-Flag:    `-hs` | `--height-start` {{ br }}
-Description: Signatures start height (Default: 1) {{ br }}
-Flag:    `-he` | `--height-end` {{ br }}
-Description: Signatures end height (Default: 3) {{ br }}
-
-Example (set signatures heights ranging from 0 to 4):
-
-```bash
-> java -jar cpsign-[version].jar [program] --height-start 0 --height-end 4 [other options]
-```
-
-## Modeling endpoint
-
-Flag:    `-e` | `--endpoint` {{ br }}
-Description: Endpoint property that should be used for modeling (the endoint of the model). Should match a property in the train file.
-Example:
-
-```bash
-> java -jar cpsign-[version].jar [program] --endpoint "Ames test categorisation" [other options]
-```
-
-## Classification labels
-
-Flag:    `-l` | `--labels` {{ br }}
-Description: Label(s) for endpoint values in classification mode. The class labels should correspond to labels used in the data file(s). Labels could
-be either textual or numerical values.
-
-Example:
-
-```bash
-> java -jar cpsign-[version].jar [program] -l nonmutagen,mutagen [other options]
-```
 
 ## Encryption
 
@@ -390,7 +176,7 @@ physical encryption key must be connected to your system. When accessing encrypt
 CPSign will handle that without any supplied flags, but requires the correct license to be supplied to the `--license` flag (the license that
 the data has been encrypted for and the physical encryption key if two-factor encryption is used).
 
-Flag: `--encrypt` \[path to license to encrypt data for\] {{ br }}
+Flag: `--encrypt` \[path to license to encrypt data for\] 
 Description: Specify that generated data should be encrypted after the given license. Note that a Standard or PRO license must be supplied to
 the `--license` flag for having access to this functionality.
 
@@ -418,7 +204,7 @@ but that license cannot decrypt the data:
 Two-factor encryption also comes with the option to have a non default PIN-code (i.e. "Three-factor" encryption). If you have a non-default
 PIN, this must be supplied both when generating encrypted data and when accessing it.
 
-Flag: `--two-factor-pin` {{ br }}
+Flag: `--two-factor-pin` 
 Description: Pass the flag without any argument to it, the program will prompt you to enter the PIN when it starts
 
 ```bash

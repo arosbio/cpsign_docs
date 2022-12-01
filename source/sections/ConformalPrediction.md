@@ -1,17 +1,11 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
+
 
 # Conformal Prediction Background
 
-Conformal Prediction is described in greater depth in {ref}`[4-5] <refs>`, but here is the short introduction of the basics.
+Conformal Prediction is described in greater depth in [[4-5, 10]](refs), but here is the short introduction of the basics and the specifics of how CPSign names and computes certain things. 
 
 ```{contents} Table of Contents
-:depth: 3
+:depth: 2
 ```
 
 ## Conformal Prediction light introduction
@@ -19,37 +13,31 @@ Conformal Prediction is described in greater depth in {ref}`[4-5] <refs>`, but h
 Conformal prediction is a well established mathematical framework that delivers object-based predictions, an alternative approach
 to the domain applicability estimation. The main advantages with conformal prediction is:
 
-- Object-based prediction, thus giving a larger **prediction interval** (regression) to harder examples and a narrower one for easier examples)
+- Object-based prediction, thus giving a larger **prediction interval** (regression) to harder examples and a narrower one for easier examples), assuming an error model is used.
 - Allows the user to set a desired **confidence**, the framework will then guarantee that the predictions will be at least of that confidence.
   Instead of estimating the accuracy of the model and then not being able to change that in any way.
-- Classification can be done in a **mondrian** fashion, meaning that the predictions will be **class-based**, solving problems with uneven class-distributions.
+- Classification can be done in a **mondrian** fashion, meaning that the predictions are calibrated independently for each class, solving problems with uneven class-distributions. **Note**: CPSign only supports mondrian calibration.
 
 Conformal Prediction is proven to be well calibrated for Inductive Conformal Prediction (ICP) and Transductive Conformal Prediction (TCP),
 where the former is far superior in computational costs and the latter in predictive performance. The TCP comes with rather extreme computational
 costs, as each new prediction requires the underlying scoring model to be re-trained/fitted for each new prediction to be made, thus only feasible
-for smaller datasets. ICP instead only trains or fit a single scoring model (and possibly an error model in the case of regression), but sacrifice
+for smaller datasets. ICP instead only trains a single scoring model (and possibly an error model in the case of regression), but sacrifice
 data to a **calibration set** which is not used for training the scoring model (examples used for training the scoring model is called the **proper training set**).
 
-To improve the predictive performance of ICPs, the Aggregated Conformal Predictor (ACP) and Cross-Conformal Predictor (CCP) methods were developed, these
-simply combine several ICPs were the calibration set and proper training sets are picked either at random (ACP) or in a folded fashion (CCP). The
+To improve the predictive performance of ICPs, the Aggregated Conformal Predictor (ACP) and Cross-Conformal Predictor (CCP) methods were developed, or their more recent name Split Conformal Predictors. These methods simply combine several ICPs were the calibration set and proper training sets are picked either at random (ACP) or in a folded fashion (CCP). The
 ACP and CCP methods has proven to improve the predictive performance of the ICP, but is not mathematically proven to give well calibrated predictions.
 There is thus a tradeoff between performance and mathematical guarantees.
 
 ## Conformal Predictor Validity
 
-As stated in the section above, the ICP and TCP methods are proven to give well calibrated predictions under the randomness assumption. However, the
-proofs themselves rely on law of great numbers and is only guaranteed with infinitely many test examples. And further more that all examples are randomly
-drawn from the same distribution. To get an idea of the validity of the predictor, especially for the ACP and CCP methods that are not proven well calibrated,
-we can look at the *calibration plot* - relating required confidence to predictor accuracy.
+As stated in the section above, the ICP and TCP methods are proven to give well calibrated predictions under the randomness assumption. However, we expect certain deviations from "perfect calibration" due to finite test set size and if training- and test-sets have been generated in a non-random way. To get an idea of the validity of the predictor, especially for the ACP and CCP methods that are not proven well calibrated, we look at the *calibration plot* - relating required confidence to predictor accuracy.
 
 ### Accuracy computed in CPSign
 
-In the **regression** case, CPSign computes the accuracy of a model as the proportion of examples where the true or observed value is in the
-prediction interval given by the predictor. Accuracy will thus be in the range \[0,1\] where 0 will mean that
-no examples were correctly predicted and 1 means that all of them were predicted correctly.
+In the **regression** case, CPSign computes the accuracy of a model as the proportion of examples where the true (observed value) is in the prediction interval given by the predictor. Accuracy will thus be in the range `[0,1]` where 0 means that no examples were correctly predicted and 1 means that all of them were predicted correctly.
 
 In the **classification** case, CPSign computes accuracy of a model as proportion of examples where the predictor has given a prediction set which
-includes the true label. This is done regardlessly if the predicted region only contains a single label or multiple labels.
+includes the true label (observed label). This is done regardlessly if the predicted region only contains a single label or multiple labels.
 
 ## Conformal Predictor Efficiency
 

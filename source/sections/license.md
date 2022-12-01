@@ -1,3 +1,5 @@
+(license)=
+
 # Software license
 
 CPSign is an Open Source Software that is dual licensed to allow you to choose a license that best suits your requirements:

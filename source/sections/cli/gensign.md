@@ -1,10 +1,3 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
 
 (gensign)=
 

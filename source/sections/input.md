@@ -1,12 +1,5 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
 
-(smiles-requirements)=
+(input_formats)=
 
 # Input formats in CPSign
 
@@ -14,24 +7,23 @@ substitutions:
 :depth: 3
 ```
 
-## Numerical file format
+## Raw - numerical data
 
-CPSign loads and stores numerical data in LibSVM/Liblinear file format:
+CPSign loads and stores numerical data in LIBSVM/Liblinear file format:
 
 ```bash
-<value> <index>:<occurrances> <index>:<occurrances> ..
-<value> <index>:<occurrances> <index>:<occurrances> ..
+<label> <index>:<value> <index>:<value> ..
+<label> <index>:<value> <index>:<value> ..
 ..
 ```
 
-Also note that the \<index> **must start at 1** and not 0, to conform with LibLinear and LibSVM requirements.
+Also note that the `<index>` **must start at 1** and not 0, to conform with LIBSVM/LibLinear requirements.
 
-## CSV file format
+## Chemical data
+### CSV file format
 
 CPSign supports CSV files in a fairly flexible manner, allowing to specify the separator characters and other parameters that might differ between formats.
-Molecules should be encoded as SMILES strings and there is a requirement that the CSV must contain a header row - so the SMILES field can be located.
-There *must* exist a header containing "smiles" (case insensitive), the first header containing "smiles" will be taken as SMILES column. Example of a supported
-CSV file, using tab as delimiter:
+Molecules should be encoded as SMILES strings and there is a requirement that the CSV must either contain an explicit header row - or the user must specify the header from either the CLI or Java API - so that all fields can be located. There **must** exist a header containing the text "smiles" (case insensitive), the first header containing "smiles" will be taken as SMILES column. Example of a supported CSV file, using tab as delimiter:
 
 ```text
 SMILES   Sample_ID   Activity Additional_Notes
@@ -42,26 +34,25 @@ Cl.FC1=CC=C(C=C1)C(OCCCC1=CNC=N1)C1=CC=C(F)C=C1 NCGC00261380-01   POS
 CC1=CC=C(C=C1)S(=O)(=O)N[C@@H](CC1=CC=CC=C1)C(=O)CCl  NCGC00261842-01   NEG   Not all lines need to contain the additional notes
 ...
 ```
-
-## SDF
+The column header for SMILES can contain more text, e.g. "canonical smiles" and "smiles-col" are both valid header names.
+### SDF
 
 SDFiles are supported in both v2000 and v3000.
 
-## SMILES as single molecule
+### SMILES as single molecule
 
-The {ref}`predict <predict>` command can predict single molecules using the `--smiles` flag, this flag takes a string of texts where the string must start with a valid SMILES
-and can then optionally include a blank space character (tab, space) and an identifier.
+The {ref}`predict` and {ref}`online-predict` command can predict single molecules using the `--smiles` parameter, this parameter takes a string of text where the string must start with a valid SMILES and can then optionally include a blank space character (tab, space) and an identifier.
 
-## JSON file format
+### JSON file format
 
-CPSign supports a [JSON] input format, the format require that the top level starts as a JSON array (meaning that the first
-character must be a hard bracket "\["). Each index of the array is one record and each record **must** include a key-value
+CPSign supports a [JSON](http://www.json.org/) input format, the format require that the top level starts as a JSON array (meaning that the first
+character must be a hard bracket "`\[`"). Each index of the array is one record and each record **must** include a key-value
 for SMILES for the molecule. This SMILES key-value pair must have the key "SMILES", "smiles" or "Smiles". Here are some
-examples for the file fromat (it is not required that the file is properly indented).
+examples for the file format (it is not required that the file is properly indented).
 
 Example classification JSON file:
 
-```text
+```json
 [
    {
       "cdk:Title" : "1728-95-6",
@@ -73,15 +64,13 @@ Example classification JSON file:
       "cdk:Title" : "91-08-7",
       "Ames test categorisation" : "mutagen",
       "smiles" : "C=1(C(=C(C=CC1)N=C=O)C)N=C=O"
-   },
-
-   ..
+   }
 ]
 ```
 
 Example regression JSON file:
 
-```text
+```json
 [
    {
       "BIO" : "0.43",
@@ -93,14 +82,11 @@ Example regression JSON file:
       "BIO" : "1.60",
       "comment" : "Comment for second molecule",
       "smiles" : "SC1=C(C(F)(F)F)C=C([N+]([O-])=O)C=C1"
-   },
-
-   ..
+   }
 ]
 ```
 
-## Compression
+## Compressed input files
 
-CPSign automatically reads files compressed in GZIP format, there is no need to unzip these files.
+CPSign automatically reads files compressed in GZIP format.
 
-[json]: http://www.json.org/

@@ -1,10 +1,3 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
 
 (images)=
 
@@ -125,7 +118,7 @@ Instead of a color scheme as for gradient images, the significant signature has 
 
 ### Example Images
 
-**Significant Signature, using:** {{ br }}
+**Significant Signature, using:** 
 
 ```bash
 > java -jar cpsign-[version].jar predict \
@@ -139,7 +132,7 @@ Instead of a color scheme as for gradient images, the significant signature has 
 :scale: 50%
 ```
 
-**Significant Signature only with color legend, using:** {{ br }}
+**Significant Signature only with color legend, using:** 
 
 ```bash
 > java -jar cpsign-[version].jar predict \
@@ -154,7 +147,7 @@ Instead of a color scheme as for gradient images, the significant signature has 
 :scale: 50%
 ```
 
-**Molecule gradient with rainbow color scheme, using:** {{ br }}
+**Molecule gradient with rainbow color scheme, using:**
 
 ```bash
 > java -jar cpsign-[version].jar predict \
@@ -169,7 +162,7 @@ Instead of a color scheme as for gradient images, the significant signature has 
 :scale: 50%
 ```
 
-**Molecule gradient with color legend and atom numbers using:** {{ br }}
+**Molecule gradient with color legend and atom numbers using:**
 
 ```bash
 > java -jar cpsign-[version].jar predict \

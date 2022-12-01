@@ -1,10 +1,4 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
+
 
 (ml_alg)=
 
@@ -62,11 +56,11 @@ All machine learning methods implements the interface {code}`MLAlgorithm` and on
 
 ### LinearSVR
 
-Support Vector Regression (SVR) implemented in [LibLinear]. Restricted to a linear kernel and optimized for fast training and predictions for linear kernel SVM. When having very large data sets this algorithm is prefered as runtime is much quicker than the other regression algorithms.
+Support Vector Regression (SVR) implemented in [LibLinear]. Restricted to a linear kernel and optimized for fast training and predictions for linear kernel SVM. When having very large data sets this algorithm is preferred as runtime is much quicker than the other regression algorithms.
 
 ### EpsilonSVR / NuSVR
 
-Support Vector Regression (SVR) implemented in [LibSvm]. The difference between these two algorithms is that the standard {code}`cost/C` parameter (used in EpsilonSVR) is re-parameterized into {code}`nu` (used in NuSVR). The {code}`nu` parameter should be in the range \[0..1\]. Supports the following kernels: (0) LINEAR, (1) POLY, (2) RBF, (3) SIGMOID.
+Support Vector Regression (SVR) implemented in [LibSvm]. The difference between these two algorithms is that the standard `cost/C` parameter (used in EpsilonSVR) is re-parameterized into `nu` (used in NuSVR). The `nu` parameter should be in the range `[0..1]`. Supports the following kernels: (0) LINEAR, (1) POLY, (2) RBF, (3) SIGMOID.
 
 ## Classification algorithms
 

@@ -1,10 +1,4 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
+
 
 (predictors)=
 
@@ -23,12 +17,12 @@ and Aggregated Venn-ABERS Predictors (CVAP) ({ref}`[4,5,7,8] <refs>`). They all 
 CPSign stores numerical data in LibSVM/LibLinear format which is in the form:
 
 ```bash
-<value> <index>:<occurrances> <index>:<occurrances> ..
-<value> <index>:<occurrances> <index>:<occurrances> ..
+<label> <index>:<value> <index>:<value> ..
+<label> <index>:<value> <index>:<value> ..
 ..
 ```
 
-Also note that the \<index> **must start at 1** and not 0, to conform with LibLinear and LibSVM requirements.
+Also note that the `<index>` **must start at 1** and not 0, to conform with LibLinear and LibSVM requirements.
 
 ## Problem class
 

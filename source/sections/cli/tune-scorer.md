@@ -1,7 +1,7 @@
 
-(tune)=
+(tune-scorer)=
 
-# Tune
+# Tune-scorer
 
 The **tune** program is used for parameter optimization of the Support Vector Machine parameters *C* and *gamma*. The standard
 options used in CPSign are normally good when using the signatures descriptors in SVM problems, but here you can optionally run

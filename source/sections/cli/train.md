@@ -1,10 +1,4 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
+
 
 (train)=
 

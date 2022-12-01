@@ -1,10 +1,3 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
 
 (predict)=
 
@@ -198,29 +191,29 @@ for instance:
 
 ## Prediction Options
 
-Flag: `-cg` | `--calculate-gradient` {{ br }}
-Description: It is possible to calculate gradient and the significant signature of a molecule by passing this flag. It is comparatively computationally heavy and is therefor not computed by default. {{ br }}
+Flag: `-cg` | `--calculate-gradient` 
+Description: It is possible to calculate gradient and the significant signature of a molecule by passing this flag. It is comparatively computationally heavy and is therefor not computed by default. 
 
-Flag: `-co` | `--confidences` {{ br }}
-Description: A list of confidences that should be used for prediction. Controls the prediction intervals for Conformal Prediction. {{ br }}
+Flag: `-co` | `--confidences` 
+Description: A list of confidences that should be used for prediction. Controls the prediction intervals for Conformal Prediction. 
 
-Flag: `-di` | `--distance` {{ br }}
+Flag: `-di` | `--distance` 
 Description: (Only applicable for ACP regression) Given a distance *d* (given by the input to `--distance`), predict the confidence of the real value (*y*) being within an interval +/-*d* from the
-estimated value (*ŷ*) from the model (i.e. for *y* laying within the interval \[ *ŷ-d*, *ŷ+d* \]). {{ br }}
+estimated value (*ŷ*) from the model (i.e. for *y* laying within the interval \[ *ŷ-d*, *ŷ+d* \]). 
 
 ## Output Options
 
-Flag: `-of` | `--output-format` {{ br }}
-Description: The output type of the prediction. Can be json, smiles/plain or sdf (in mdl v2000 eller v3000 format), where json is the default option. {{ br }}
+Flag: `-of` | `--output-format` 
+Description: The output type of the prediction. Can be json, smiles/plain or sdf (in mdl v2000 eller v3000 format), where json is the default option. 
 
-Flag: `-o` | `--output` {{ br }}
-Description: If the prediction output should be printed to a file. {{ br }}
+Flag: `-o` | `--output` 
+Description: If the prediction output should be printed to a file. 
 
-Flag: `--output-inchi` {{ br }}
+Flag: `--output-inchi` 
 Description: Generate InChI and InChIKey within CPSign and add it to the output
 
-Flag: `--compress` {{ br }}
-Description: If the output file should gziped. Note that compression can only be performed when writing to a file. {{ br }}
+Flag: `--compress` 
+Description: If the output file should gziped. Note that compression can only be performed when writing to a file. 
 
 ## Examples Usage
 

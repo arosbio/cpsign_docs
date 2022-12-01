@@ -1,12 +1,5 @@
----
-substitutions:
-  br: |-
-    ```{raw} html
-    <br />
-    ```
----
 
-(aggregate)=
+(fast_aggregate)=
 
 # Fast-aggregate
 
