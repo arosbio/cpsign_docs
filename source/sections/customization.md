@@ -31,5 +31,6 @@ com.arosbio.ml.testing.TestingStrategy
 Apart from all extensions available under [ConfAI extensions](conf-ai-extensions) above, at the chemistry level CPSign can be extended with custom descriptors by adding your implementations of the interface `com.arosbio.cheminf.descriptors.ChemDescriptor`.
 
 
-## Encryption
+(encryption-extension)=
+## Encryption extension
 Generated models and precomputed datasets can be securely saved using instances of `com.arosbio.encryption.EncryptionSpecification` but there is no such implementation available in the public repo. Users can either purchase such an extension by contacting [Aros Bio](mailto:ola.spjuth@arosbio.com), or can implement their own encryption/decryption specifications and making them available as a Java service. Just note that currently a single implementation is allowed in the class path when running the CLI application, otherwise it will terminate in case encryption is specified. 

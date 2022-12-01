@@ -19,6 +19,7 @@ CPSign loads and stores numerical data in LIBSVM/Liblinear file format:
 
 Also note that the `<index>` **must start at 1** and not 0, to conform with LIBSVM/LibLinear requirements.
 
+(chemical-input)=
 ## Chemical data
 ### CSV file format
 

@@ -14,3 +14,4 @@
 10. Alvarsson J, Arvidsson McShane S, Norinder U, Spjuth O. Predicting with confidence: using conformal prediction in drug discovery. J of Pharm Sci 2021;110(1) pp. 42-49.
 11. Carlsson L, Ahlberg E, Boström H, Johansson U, Linusson. Modifications to p-values of conformal predictors. Int. Symp. on Statistical Learning and Data Sci. 2015, 9047, 251−259.
 12. Johansson U, Ahlberg E, Boström H, Carlsson L, Linusson H, Sönströd C. Handling small calibration sets in mondrian inductive conformal regressors. Int. Symp. on Statistical Learning and Data Sci. 2015, 9047, 271−280.
+13. Arvidsson McShane S, Ahlberg E, Noeske T,  Spjuth O. Machine learning strategies when transitioning between biological assays. Journal of Chemical Information and Modeling 2021;61(7) pp. 3722-3733.
