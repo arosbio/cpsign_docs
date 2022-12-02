@@ -3,21 +3,20 @@
 
 # `predict`
 
-The predict program performs predictions on individual molecules and/or files of molecules. The predictions
-are made using already {ref}`trained <train>` predictor models. For TCP, predictions can also be done
-'on the fly' using the {ref}`online-predict <online-predict>` program (where no training is required before hand).
+The `predict` program takes a trained predictor model from {ref}`train` in order to predict individual molecules in SMILES format and/or files with molecular data.For TCP, predictions can also be done "on the fly" using the {ref}`online-predict` program (where no training is required before hand).
 
 ```{contents} Table of Contents
 :backlinks: top
 :depth: 3
 ```
 
-## Parameters
+## Usage manual
 
-The full usage menu can be retrieved by running command:
+The full usage manual can be retrieved by running command:
 
-```text
-> java -jar cpsign-[version].jar predict
+```bash
+> ./cpsign-[version]-uber.jar predict
+```
 
 
 

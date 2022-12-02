@@ -10,58 +10,13 @@ The `model-info` program reads a CPSign model and prints information about it, i
 :depth: 3
 ```
 
-## Parameters
+## Usage manual
 
-The full usage menu can be retrieved by running command:
+The full usage manual can be retrieved by running command:
 
-```text
-> java -jar cpsign-[version].jar check-version -h
-
-                                      check-version
-SYNOPSIS
-------------------------------------------------------------------------------------------
-  check-version [options]
-  check-version @/tmp/runconfigs/parameters.txt [options]
-  check-version @C:\Users\User\runconfigs\parameters.txt [options]
-
-
-DESCRIPTION
-------------------------------------------------------------------------------------------
-  Get information about a CPSign model.
-
-
-OPTIONS
-------------------------------------------------------------------------------------------
-  Input:
-  * -mi | --model-in                         [URI | path]
-       CPSign model
-
-  Output:
-    -rf | --result-format                    [id | text]
-       Output format, options:
-         (1) json
-         (2) text | plain
-       Default: 2
-    --full
-       Get full information about the given model, not only what CPSign version was used
-       for building the model
-
-  General:
-    -h  | --help | man
-       Get help text
-    --short
-       Use shorter help text (used together with the --help argument)
-    --logfile                                [path]
-       Path to a user-set logfile, will be specific for this run
-    --silent
-       Silent mode (only print output to logfile)
-    --echo
-       Echo the input arguments given to CPSign
-
-------------------------------------------------------------------------------------------
+```bash
+> ./cpsign-[version]-uber.jar model-info
 ```
-
-No license is required for this command.
 
 ## Example Usage
 

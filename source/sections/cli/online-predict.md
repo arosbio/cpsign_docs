@@ -11,6 +11,6 @@ models on the fly. Note that this is only valid for TCP models. The parameters a
 
 The full usage manual can be retrieved by running command:
 
-```text
+```bash
 > ./cpsign-[version]-uber.jar online-predict
 ```
