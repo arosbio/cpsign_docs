@@ -1,7 +1,7 @@
 
 (predict)=
 
-# Predict
+# `predict`
 
 The predict program performs predictions on individual molecules and/or files of molecules. The predictions
 are made using already {ref}`trained <train>` predictor models. For TCP, predictions can also be done

@@ -1,9 +1,9 @@
 
 (gensign)=
 
-# Gensign
+# `gensign`
 
-The gensign program is not something that is normally part of the workflow, but a way to validate the resulting signature descriptors for
+The `gensign` program is not something that is normally part a workflow, but a way to validate the resulting signature descriptors for
 molecules without starting any heavy jobs.
 
 ```{contents} Table of Contents

@@ -1,9 +1,9 @@
 
 (validate)=
 
-# Validate
+# `validate`
 
-The validate program performs a validation off a {ref}`trained model<train>`. The predictor can thus be evaluated to
+The `validate` program performs a validation off a {ref}`trained model<train>`. The predictor can thus be evaluated to
 see how good it performs on unknown data.
 
 ```{contents} Table of Contents

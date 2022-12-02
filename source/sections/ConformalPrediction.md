@@ -93,15 +93,15 @@ has the highest pvalue to start with.
 would move the prediction into a higher response value, and vice-versa if the gradient value is negative.
 
 **Note 2** The gradients will not be normalized at this level, classification gradient values can be within \[-1,1\] and regression values can potentially be \[-∞,∞\].
-On the Signatures level we can provide normalized gradients, see {ref}`moleculeGradient`.
+On the Signatures level we can provide normalized gradients, see {ref}`molecule-gradient`.
 
 ### Aggregated Conformal Predictor- and Cross-conformal Predictor gradients
 
-Aggragated Conformal Predictors (ACPs) and Cross-conformal Predictors (CCPs) uses several Inductive Conformal Predictors (ICPs), each which will produce their own gradient.
+Aggregated Conformal Predictors (ACPs) and Cross-conformal Predictors (CCPs) uses several Inductive Conformal Predictors (ICPs), each which will produce their own gradient.
 It is fully possible that the gradients contradict each other. In CPSign we typically use the median value produced by the ICPs so that individual ICPs does not get too much
 influence on the results. When computing the gradient of the prediction, we use the median value per *each feature*.
 
-(moleculegradient)=
+(molecule-gradient)=
 
 ### Molecule Gradient
 

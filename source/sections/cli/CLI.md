@@ -5,11 +5,11 @@
 
 CPSign can be used for number of different task within machine learning and compound chemistry. The standard flow of action are these steps:
 
-1. Use {ref}`Precompute <precompute>` to compute descriptors from input chemical data, yielding a `precomputed dataset`.
-2. (*Optional*) Use {ref}`Tune <tune>` or {ref}`Tune-scorer <tune-scorer>` to find optimal hyperparameters for your particular data (otherwise default parameters are used according to {ref}`[6] <refs>`).
-3. Use {ref}`Train <train>` to train the predictor (optional for TCP - where the {ref}`Online-predict <online-predict>` program can be used instead)
-4. Use {ref}`Predict <predict>` to predict new compound(s).
-5. (*Optional*) Use {ref}`Validate <validate>` to validate the model, if you have an external test/validation-set.
+1. Use {ref}`precompute` to compute descriptors from input chemical data, yielding a `precomputed dataset`.
+2. (*Optional*) Use {ref}`tune` or {ref}`tune-scorer` to find optimal hyperparameters for your particular data (otherwise default parameters are used according to {ref}`[6] <refs>`).
+3. Use {ref}`train` to train the predictor (optional for TCP - where the {ref}`online-predict` program can be used instead)
+4. Use {ref}`predict` to predict new compound(s).
+5. (*Optional*) Use {ref}`validate` to validate the model, if you have an external test/validation-set.
 
 The available CPSign programs are:
 
@@ -17,18 +17,21 @@ The available CPSign programs are:
 :maxdepth: 1
 
 /sections/cli/precompute
+/sections/cli/transform
 /sections/cli/train
-/sections/cli/aggregate
-/sections/cli/fast-aggregate
 /sections/cli/predict
 /sections/cli/online-predict
 /sections/cli/tune
 /sections/cli/tune-scorer
 /sections/cli/crossvalidate
 /sections/cli/validate
+/sections/cli/aggregate
+/sections/cli/fast-aggregate
 /sections/cli/gensign
-/sections/cli/check-version
+/sections/cli/model-info
+/sections/cli/list-features
 /sections/cli/explain
+/sections/cli/generate-key
 ```
 
 This page contains the general options. For each specific program, please follow the links above or use the navigation on the left.
@@ -58,7 +61,7 @@ or for each program, here exemplified for the `precompute` command:
 ``` 
 
 ### Detailed explanation of parameters using the `explain` program
-Some flags and input require more information than can easily fit in the usage help page of individual programs, such information can instead be viewed using the `explain` program:
+Some flags and input require more information than can easily fit in the usage help page of individual programs, such information can instead be viewed using the {ref}`explain` program:
 
 ```bash
 > ./cpsign-[version]-uber.jar explain

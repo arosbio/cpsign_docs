@@ -1,7 +1,7 @@
 
 (crossvalidate)=
 
-# Crossvalidate
+# `crossvalidate`
 
 Crossvalidatation can be performed with ACP or CVAP, in both regression and classification. It will perform a *k*-fold crossvalidation using
 **k** number of folds.

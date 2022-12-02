@@ -1,9 +1,9 @@
 
 (checkversion)=
 
-# Check-version
+# `model-info`
 
-The check-version program reads a CPSign model and prints information about it, i.e. what version of CPSign was used to build the model and should thus be able to use it.
+The `model-info` program reads a CPSign model and prints information about it, i.e. what version of CPSign was used to build the model and should thus be able to use it.
 
 ```{contents} Table of Contents
 :backlinks: top

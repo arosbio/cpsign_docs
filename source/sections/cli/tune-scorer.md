@@ -1,9 +1,9 @@
 
 (tune-scorer)=
 
-# Tune-scorer
+# `tune-scorer`
 
-The **tune** program is used for parameter optimization of the Support Vector Machine parameters *C* and *gamma*. The standard
+The `tune-scorer` program is used for parameter optimization of the Support Vector Machine parameters *C* and *gamma*. The standard
 options used in CPSign are normally good when using the signatures descriptors in SVM problems, but here you can optionally run
 tuning of the parameters.
 
@@ -262,7 +262,7 @@ is transferable to the TCP case.
 
 ## Parameter tuning β
 
-The smoothing factor, β, of the logarithmically normalized nonconformity measure introduced in {ref}`Nonconformity measures <nonconf_measure>`
+The smoothing factor, β, of the logarithmically normalized nonconformity measure introduced in {ref}`nonconf-measure`
 can be optimized with the tune program. This is done slightly different than with the *C* and *gamma* values, here you can simply add
 a list of β values that you wish to test (given that you have set the logarithmically normalized nonconformity measure in a regression case):
 

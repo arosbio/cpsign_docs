@@ -1,12 +1,9 @@
 
-(fast_aggregate)=
+(fast-aggregate)=
 
-# Fast-aggregate
+# `fast-aggregate`
 
-The fast-aggregate program aggregates trained ACP and VAP models, it does not work for precomputed data or TCP.
-It will merge multiple models into a large aggregated model, but
-it does no sanitation at all. Use it for speeding up training of larger ACP and VAP models, especially when using LibSvm
-which has a much longer training time for a given training set size.
+The `fast-aggregate` program aggregates partially trained ACP and VAP models, it does not work for precomputed data or TCP. It will merge multiple partial models into a large aggregated model, but it does no validation at all. Use it for speeding up training of larger ACP and VAP models, especially when using LibSvm which has a much longer training time for a given training set size.
 
 ```{contents} Table of Contents
 :backlinks: top

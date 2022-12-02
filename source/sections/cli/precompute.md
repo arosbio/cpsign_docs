@@ -1,14 +1,19 @@
 
 (precompute)=
 
-# Precompute
+# `precompute`
 
 Precomputing data means parsing a dataset in a {ref}`chemical file format<chemical-input>` and computing descriptors for all molecules. This is the first step needed in most pipelines and yields a `precomputed data set` which is the input of (almost) all other programs. The output of `precompute` is a JAR file, including the numerical representation of your input data (potentially altered by any data transformations) and all meta data needed in downstream tasks - such as which descriptors were used, the transformations needed for future predictions, textual labels, the property being modelled etc. 
 
 
-## Parameters
+```{contents} Table of Contents
+:backlinks: top
+:depth: 3
+```
 
-The full usage help can be retrieved by running command:
+## Usage manual
+
+The full usage manual can be retrieved by running command:
 
 ```bash
 > ./cpsign-[version]-uber.jar precompute
