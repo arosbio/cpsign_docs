@@ -143,6 +143,7 @@ C:\Users\User\CPSign> java -jar cpsign-1.0.0.jar @..\CPSign\runconfigs\train_con
 CPSign will by default write information on the screen and to a rather verbose log file that will be written in the same directory of where CPSign is run from. However, you can configure CPSign to run in **silent mode** using the `-q, --quiet, --silent` flag, meaning that no output will be written on the screen (except if the run fails for some reason, e.g. bad input, the error messages will be printed to the system error stream). If you do not want to generate a log file this can be achieved by giving the `--no-logfile` flag, or if you wish to write the log in a separate location, e.g. having a separate log for each run, this is configured using the `--logfile <path>` parameter.
 
 
+(:-syntax)=
 ## :-syntax
 
 To reduce the number of parameters-flags in CPSign and to create a more natural grouping of arguments, CPSign uses ':-syntax' for many of its arguments. What this means is that sub-parameters are specified together with the parameter itself by separating the arguments and subsequent sub-arguments with a `:` character. E.g. when specifying the scorer-implementation and its unique arguments such as kernel-type, kernel-parameters, cost, epsilon, etc. The available sub-arguments are specific for each scorer-implementations and can be retrieved from the corresponding help-menu. 

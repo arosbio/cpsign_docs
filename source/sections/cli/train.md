@@ -19,38 +19,71 @@ The full usage manual can be retrieved by running command:
 > ./cpsign-[version]-uber.jar train
 ```
 
-Note that there are default values for many parameters, and they are chosen in 
+Note that there are default values for many parameters, and they are chosen in preference to fast runtime so that the user do not start long running jobs by mistake. 
 
-## Example Usage (ACP regression)
+## Examples
+
+### CCP classification
+
+Here is an example that trains a Cross-Conformal Predictor (CCP) by selecting the "folded-stratified" sampling strategy. By using the {ref}`:-syntax` we set the *sub-parameter* `folds=8`, the available sub-parameters can be found running `explain sampling`. We also use an RBF-kernel Support Vector Classifier (SVC) by setting `--scorer C_SVC`. This code snippet assumes there is a precomputed data set in `/output/models/precomputed-clf.jar`. By giving the `--seed` parameter we use an explicit RNG seed in order to get reproducible results.
 
 ```bash
-> java -jar cpsign-[version].jar train \
-   --license /path/to/Standard-license.license \
-   -td sdf /path/to/datafile.sdf \
-   -e "BIO" \
-   -nr 5 \
-   -i liblinear \
-   --model-out /tmp/Chang_BIO.cpsign \
-   --model-name Chang_BIO \
-   -pt 2
+> ./cpsign-[version]-uber.jar train \
+	--predictor-type acp_classification \
+	--data-set /output/models/precomputed-clf.jar \
+	--scorer C_SVC \
+	--model-out /output/models/clf-trained.jar \
+	--model-name "trained classifier model" \ 
+	--seed 45612512 \
+	--sampling-strategy folded-stratified:folds=8
+```
 
+### ACP regression
 
-Running with Standard License registered to [Name] at [Company]. Expiry
-date is [Date]
+Here is an example of training an Aggregated Conformal Predictor (ACP) for a regression task. The difference between the CCP model in the above example is that sampling is done randomly instead of in a folded fashion. By setting the *sub-parameter* `numSamples=20` we chose to aggregate 20 ICPs and setting `nCalib=10` fixes the number of training instances in the *calibration set* to be 10 for each ICP model (all remaining training instances are placed in the *proper training set*). Again, we assume there is a precomputed data set in `/output/models/precomputed-reg.jar`. In this example, we use an **error-scorer** model in order to normalize the predictions based on the predicted difficulty of predicting the instance - by default the error scorer will be of the same type and have identical hyperparameters as the scorer model (`--scorer`), but in this case we use a linear-kernel SVR in order to save some computational time. The error scorer parameter only has an effect in case a nonconformity measure (`--ncm` parameter) that uses such a normalizer model is used. We also set how the p-values should be treated, in this case we make CPSign do a linear interpolation between the discrete "steps" that are otherwise present due to the small number of calibration instances (see references [[10-11]](refs)).
 
-Reading train file and performing signature generation..
-Successfully parsed 34 molecules. Generated 286 new signatures.
+```bash
+> ./cpsign-[version]-uber.jar train \
+	--predictor-type acp_regression \
+	--data-set /output/models/precomputed-reg.jar \
+	--scorer EpsilonSVR \
+	--error-scorer LinearSVR \
+	--pvalue-calc linear-interpolation \
+	--model-out /output/models/reg-trained.jar \
+	--sampling-strategy random:numSamples=20:nCalib=10
+```
 
-Training ACP Regression predictor with 5 models
- - Trained model 1/5
- - Trained model 2/5
- - Trained model 3/5
- - Trained model 4/5
- - Trained model 5/5
+### TCP Classification 
 
-Saving model to file..
-Finished model saved at:
-/private/tmp/Chang_BIO.cpsign
+The Transductive Conformal Predictor (TCP) is only available for classification tasks and is much more computationally demanding than the inductive algorithm versions. The training step however is very quick as it only copies the data and sets the hyperparameters that you give - actual model training is not performed until prediction time for TCP models (that is, unless the `--percentiles` flag is given). In this example we chose a non-default *nonconformity measure* with `--ncm InverseProbability`, which then also requires the **scorer** to be a ML model that can output probability scores - which is set using the `--scorer PlattScaledC_SVC` argument.
+
+```bash
+> ./cpsign-[version]-uber.jar train \
+	--predictor-type tcp_classification \
+	--data-set /output/models/precomputed-clf.jar \
+   --ncm InverseProbability \
+	--scorer PlattScaledC_SVC \
+	--model-out /output/models/clf-tcp-trained.jar \
+	--model-name "TCP classifier model" 
+
+```
+
+### ICP models
+
+If you wish to train an Inductive Conformal Predictor (ICP), i.e. a single partition of *proper training set* and *calibration set*, that is done by using either of the sampling strategies "Random" or "RandomStratified" and setting the *sub-parameter* `numSamples=1` and setting the `--predictor-type` parameter to either "ACP_classification" or "ACP_regression". In essence this performs an "aggregation" of a single model internally - which simply outputs the predictions of the single ICP itself.
+
+### CVAP Classification 
+
+The Cross Venn-ABERS Predictor (CVAP) produces well calibrated probability predictions for binary classification. Many of the available parameters do not apply to CVAP, namely `--ncm`, `--pvalue-calc` and `--error-scorer`. Here are some rudimentary arguments to train a CVAP model, again relying on a precomputed data set in `/output/models/precomputed-clf.jar`. Note that according to the literature the sampling should be done in a folded fashion, but CPSign allows you to pick a random sampling strategy as well, thus dropping the "Cross" in CVAP - leading to the name "VAP_classification".
+
+```bash
+> ./cpsign-[version]-uber.jar train \
+	--predictor-type VAP_classification \
+	--data-set /output/models/precomputed-clf.jar \
+	--scorer C_SVC \
+	--model-out /output/models/cvap-trained.jar \
+	--model-name "trained probability model" \ 
+	--sampling-strategy folded-stratified
 ```
 
 
