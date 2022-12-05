@@ -3,7 +3,7 @@
 
 # `predict`
 
-The `predict` program takes a trained predictor model from {ref}`train` in order to predict individual molecules in SMILES format and/or files with molecular data.For TCP, predictions can also be done "on the fly" using the {ref}`online-predict` program (where no training is required before hand).
+The `predict` program takes a trained predictor model from {ref}`train` in order to predict individual molecules in SMILES format and/or files with molecular data. For TCP, predictions can also be done "on the fly" using the {ref}`online-predict` program (where no training is required beforehand).
 
 ```{contents} Table of Contents
 :backlinks: top
@@ -18,175 +18,14 @@ The full usage manual can be retrieved by running command:
 > ./cpsign-[version]-uber.jar predict
 ```
 
+## Input parameters
+The `-m, --model` parameter a is required parameter, and then either the `--smiles` and/or the `--predict-file` must be given. Then we have a few parameters that are required in some cases but optional in others, e.g. the `--confidences` does not have to be given for Venn-ABERS or conformal classifier models, where the former doesn't really on a user-set confidence level and the latter will simply output the raw p-values (but no prediction sets). For regression models the `--confidences` and/or `--prediction-widths` must be given as the algorithm demands a fixed confidence in order to produce the confidence intervals for. The `--prediction-widths` is sort of the other way around, you specify the width of the confidence interval and wish to know how much confidence the predictor would assign to that width of intervals.
+
+## Output settings
 
 
-                                         predict
-SYNOPSIS
-------------------------------------------------------------------------------------------
-  predict [options]
-  predict @/tmp/runconfigs/parameters.txt [options]
-  predict @C:\Users\User\runconfigs\parameters.txt [options]
 
-
-DESCRIPTION
-------------------------------------------------------------------------------------------
-  Predict new examples given trained models (derived from the 'train' program). For TCP
-  there is also the 'online-predict' program that can train models on the fly, either from
-  precomputed data or chem-files.
-
-
-OPTIONS
-------------------------------------------------------------------------------------------
-  Input:
-  * -mi | --model-in                         [URI | path]
-       Trained CPSign model
-    -sm | --smiles                           [SMILES]
-       SMILES string to predict, can optionally include a blank space and a molecule
-       name/identfier
-    -p  | --predict-file                     [format] [opt args] [URI | path]
-       File to predict. Accepted formats are SMILES, SDF or JSON
-
-  Prediction:
-    -co | --confidences                      [confidence confidence .. ]
-       Confidences for predictions (e.g. '0.5,0.7,0.9' or '0.5 0.7 0.9'). Should be in the
-       range [0,1]
-    -di | --distances                        [distance distance .. ]
-       (ACP regression only) Distances from to predicted midpoint (e.g. '0.5,2,5' or '0.5
-       2 5')
-    -cg | --calculate-gradient
-       Calculate the Significant Signature of molecules
-
-  Output:
-    -of | --output-format                    [id | text]
-       Output format of predictions, options:
-         (1) json | default
-         (2) TSV | smiles
-         (3) sdf | sdf-v2000
-         (4) sdf-v3000
-         (5) CSV
-       Default: 1
-    -o  | --output                           [path]
-       File to write output to (default is printing to screen)
-    --output-inchi
-       Generate InChI and InChIKey in the output
-    --compress
-       If the outputfile should be compressed (only possible when writing to file)
-
-  Encryption:
-
-  Gradient image output:
-    -gi | --gradient-images
-       Create a Gradient image for each predicted molecule.
-    -if | --image-file                       [path]
-       Path to where generated images should be saved, can either be a path to a specific
-       folder or a full path including a file name (only .png file ending supported).
-       Every image will be named '[name]-[count].png' or '[name]-[$cdk:title].png' where
-       name is either a default name or the specified name to this parameter (e.g. '.' -
-       current folder using default file name, '/tmp/imgs/DefaultImageName.png' - use
-       /tmp/imgs/ as directory and use 'DefaultImageName' as file name)
-       Default: imgs/GradientDepiction.png
-    -cs | --color-scheme                     [text]
-       The specified color-scheme (case in-sensitive), options:
-         (1) blue:red
-         (2) red:blue
-         (3) red:blue:red
-         (4) cyan:magenta
-         (5) rainbow
-             custom - contact Aros Bio for custom requirements!
-       Default: 1
-    --color-legend
-       Add a color legend at the bottom of the image
-    --atom-numbers
-       Depict atom numbers
-    --atom-number-color                      [color name] | [hex color]
-       Color of the atom numbers
-       Default: BLUE
-    -ih | --image-height                     [text]
-       The height of the generated images (in pixels)
-       Default: 400
-    -iw | --image-width                      [integer]
-       The width of the generated images (in pixels)
-       Default: 400
-
-  Significant Signature image output:
-    -si | --signature-images
-       Create a Significant Signature image for each predicted molecule
-    -sf | --signature-image-file             [path]
-       Path to where generated images should be saved, can either be a path to a specific
-       folder or a full path including a file name (only .png file ending supported).
-       Every image will be named '[name]-[count].png' or '[name]-[$cdk:title].png' where
-       name is either a default name or the specified name to this parameter (e.g. '.' -
-       current folder using default file name, '/tmp/imgs/DefaultImageName.png' - use
-       /tmp/imgs/ as directory and use 'DefaultImageName' as file name)
-       Default: imgs/SigificantSignatureDepiction.png
-    -hc | --highlight-color                  [color name] | [hex color]
-       The color that should be used for the highlighting of the significant signature
-       Default: BLUE
-    --signature-color-legend
-       Add a color legend at the bottom of the image
-    --signature-atom-numbers
-       Depict atom numbers
-    --signature-atom-number-color            [color name] | [hex color]
-       Color of the atom numbers
-       Default: BLUE
-    -sh | --signature-image-height           [text]
-       The height of the generated images (in pixels)
-       Default: 400
-    -sw | --signature-image-width            [integer]
-       The width of the generated images (in pixels)
-       Default: 400
-
-  General:
-  * --license                                [URI | path]
-       Path or URI to license file
-    -h  | --help | man
-       Get help text
-    --short
-       Use shorter help text (used together with the --help argument)
-    --logfile                                [path]
-       Path to a user-set logfile, will be specific for this run
-    --silent
-       Silent mode (only print output to logfile)
-    --echo
-       Echo the input arguments given to CPSign
-    --seed                                   [integer]
-       Set this flag if an explicit RNG seed should be used in tasks that require a RNG
-       (randomization of training data, splitting in cross-validation, learning algorithms
-       etc). Not used by all programs.
-    --progress-bar
-       Add a Progress bar in the system error output
-    --progress-bar-ascii
-       Add a Progress bar in ASCII in the system error output
-    --time
-       Print wall-time for all individual steps in execution
-
-------------------------------------------------------------------------------------------
-```
-
-The full list of parameters are a bit overwhelming, so each section can be retrieved individually by
-for instance:
-
-```text
-> java -jar cpsign-[version].jar predict output -h
-
-                                         predict
-------------------------------------------------------------------------------------------
-  Output:
-    -of | --output-format                    [id | text]
-       Output format of predictions, options:
-         (1) json | default
-         (2) TSV | smiles
-         (3) sdf | sdf-v2000
-         (4) sdf-v3000
-         (5) CSV
-       Default: 1
-    -o  | --output                           [path]
-       File to write output to (default is printing to screen)
-    --output-inchi
-       Generate InChI and InChIKey in the output
-    --compress
-       If the outputfile should be compressed (only possible when writing to file)
-```
+## Examples
 
 ## Prediction Options
 

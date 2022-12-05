@@ -1,3 +1,5 @@
+(generate-key)=
+
 # `generate-key`
 
 
