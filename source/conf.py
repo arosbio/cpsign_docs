@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'CPSign'
-copyright = '2022, Staffan Arvidsson McShane, Ola Spjuth, Ernst Ahlberg, Lars Carlsson & Jonathan Alvarsson'
+copyright = '2023, Staffan Arvidsson McShane, Ola Spjuth, Ernst Ahlberg, Lars Carlsson & Jonathan Alvarsson'
 author = 'Staffan Arvidsson McShane, Ola Spjuth, Ernst Ahlberg, Lars Carlsson & Jonathan Alvarsson'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.0'
+release = '2.0.0-rc6-blablabla'
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,7 +31,15 @@ release = '2.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.mathjax",
     "myst_parser",
+    
+]
+
+myst_enable_extensions = [
+    "amsmath",
+    "dollarmath",
+    # other MyST extensions...
 ]
 
 # Add any paths that contain templates here, relative to this directory.
