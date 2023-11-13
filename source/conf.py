@@ -22,7 +22,7 @@ copyright = '2023, Staffan Arvidsson McShane, Ola Spjuth, Ernst Ahlberg, Lars Ca
 author = 'Staffan Arvidsson McShane, Ola Spjuth, Ernst Ahlberg, Lars Carlsson & Jonathan Alvarsson'
 
 # The full version, including alpha/beta/rc tags
-release = '2.0.0-rc6-blablabla'
+release = '2.0.0-rc6'
 
 
 # -- General configuration ---------------------------------------------------
