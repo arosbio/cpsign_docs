@@ -3,13 +3,14 @@
 
 # Using CPSign from command line
 
-CPSign can be used for number of different task within machine learning and compound chemistry. The standard flow of action are these steps:
+CPSign can be used for number of different task within machine learning and cheminformatics. The standard flow of action are these steps:
 
 1. Use {ref}`precompute` to compute descriptors from input chemical data, yielding a `precomputed dataset`.
-2. (*Optional*) Use {ref}`tune` or {ref}`tune-scorer` to find optimal hyperparameters for your particular data (otherwise default parameters are used according to {ref}`[6] <refs>`).
-3. Use {ref}`train` to train the predictor (optional for TCP - where the {ref}`online-predict` program can be used instead)
-4. Use {ref}`predict` to predict new compound(s).
-5. (*Optional*) Use {ref}`validate` to validate the model, if you have an external test/validation-set.
+2. (*Optional*) Use {ref}`tune` or {ref}`tune-scorer` to find optimal hyper-parameters for your particular data (otherwise default parameters are used according to [[6]](../references.md)).
+3. Use {ref}`train` to train the predictor (optional for TCP - where the {ref}`predict-online` program can be used instead)
+4. (*Optional*) Use {ref}`validate` to validate the model, if you have an external test/validation-set.
+5. Use {ref}`predict` to predict new compound(s).
+
 
 The available CPSign programs are:
 
@@ -20,7 +21,7 @@ The available CPSign programs are:
 /sections/cli/transform
 /sections/cli/train
 /sections/cli/predict
-/sections/cli/online-predict
+/sections/cli/predict-online
 /sections/cli/tune
 /sections/cli/tune-scorer
 /sections/cli/crossvalidate
@@ -42,26 +43,26 @@ This page contains the general options. For each specific program, please follow
 ```
 
 ## Running CPSign
-Running `CPSign` on the command line requires having the "Uber JAR" (i.e. the Java archive including all dependencies). This jar is a [really executable JAR](https://github.com/brianm/really-executable-jars-maven-plugin), meaning that it can be called as a program on the command line using a `./cpsign-[version]-uber.jar` type call on linux/mac systems. This internally calls `java -jar <jvm arguments> <cpsign-[version]-uber.jar>`. Depending on how you download the jar, you may have to change file permissions using e.g. `chmod` in order allow it to be executed. 
+Running `CPSign` on the command line requires having the "fatjar JAR" (i.e. the Java archive including all dependencies). This jar is a [really executable JAR](https://github.com/brianm/really-executable-jars-maven-plugin), meaning that it can be called as a program on the command line using a `./cpsign-[version]-fatjar.jar` type call on linux/mac systems. This internally calls `java -jar <jvm arguments> <cpsign-[version]-fatjar.jar>`. Depending on how you download the jar, you may have to change file permissions using e.g. `chmod` in order allow it to be executed. 
 
-You may also use a standard `java -jar <jvm arguments> cpsign-[version]-uber.jar` call in order to give custom jvm arguments, e.g. in case you need to give the jvm more memory if you have a large data set. For simplicity, this web site will use the shorter `./cpsign-[version]-uber.jar` in all examples, but all these can be replaced with the longer `java -jar ..` invocation instead. 
+You may also use a standard `java -jar <jvm arguments> cpsign-[version]-fatjar.jar` call in order to give custom jvm arguments, e.g. in case you need to give the jvm more memory if you have a large data set. For simplicity, this documentation will use the shorter `./cpsign-[version]-fatjar.jar` in all examples, but all these can be replaced with the longer `java -jar ..` invocation instead. 
 
 ## Get usage help
 
 Usage information can be accessed both at the top level, which will give information about which program commands that are accepted:
 
 ```bash
-> ./cpsign-[version]-uber.jar
+> ./cpsign-[version]-fatjar.jar
 ``` 
 
 or for each program, here exemplified for the {ref}`precompute` program:
 
 ```bash
-> ./cpsign-[version]-uber.jar precompute
+> ./cpsign-[version]-fatjar.jar precompute
 ```
 
 ### Required vs optional parameters
-Parameters in the usage manual that have a star before the parameter name are required to give, whereas the ones without the star are optional. E.g. for {ref}`train` the `-ds, --data-set` parameter is required and the `-pt, --ptype, --predictor-type` parameter is non-required as it has a default value, seen in this snippet out of the {ref}`train` usage manual;
+Parameters in the usage manual that have a star before the parameter name are required to give, whereas the ones without the star are optional. E.g. for {ref}`train` the `-ds, --data-set` parameter is required and the `-pt, --ptype, --predictor-type` parameter is not required as it has a default value, seen in this snippet out of the {ref}`train` usage manual;
 
 ```bash
 PARAMETERS
@@ -82,21 +83,21 @@ PARAMETERS
 Some flags and input require more information than can easily fit in the usage help page of individual programs, such information can instead be viewed using the {ref}`explain` program:
 
 ```bash
-> ./cpsign-[version]-uber.jar explain
+> ./cpsign-[version]-fatjar.jar explain
 ```
 
 Running the above will list the available topics where more information can be retrieved.
 
 ## Giving multiple arguments for a single parameter
 
-For some parameters, such as classification labels or grid parameters in tune etc, you will have to pass multiple arguments for a single flag. This is done fairly straightforwardly by separating the arguments by either a whitespace character (blank space, tab etc), a comma (,) or both. If you have a text argument that already contain any of these characters you wrap the arguments in quotation-marks, e.g.: 
+For some parameters, such as class labels or grid parameters in tune etc, you will have to pass multiple arguments for a single flag. This is done fairly straightforwardly by separating the arguments by either a whitespace character (blank space, tab etc), a comma (,) or both. If you have a text argument that already contain any of these characters you wrap the arguments in quotation-marks, e.g.: 
 ```bash
 --labels "positive class" "negative class"
 ```
 
 ## Fuzzy-matching and case-insensitive arguments
 
-All parameter flags need to match to be written 100% correctly, but the arguments for the flags can in most cases be shortened or misspelled (to some degree). This can in some cases lead to unexpected results if the argument happened to have a better "fuzzy score" with some other argument. We thus recommend that you write out the arguments correctly each time, in case you have unexpected failures or behavior, make sure to check your arguments.
+All parameter flags need to be written fully, but the arguments for the flags can in most cases be shortened or misspelled (to some degree). This can in some cases lead to unexpected results if the argument happened to have a better "fuzzy score" with some other argument. We thus recommend that you write out the arguments correctly each time, in case you have unexpected failures or behavior, make sure to check your arguments.
 
 CPSign is also case-insensitive for most arguments, but not for the flags and program names.
 
@@ -128,17 +129,17 @@ Example in bash:
 
 ```bash
 > # An absolute path
-> ./cpsign-[version]-uber.jar \
+> ./cpsign-[version]-fatjar.jar \
         @/Users/username/runconfigs/train_config.txt \
         [other options]
 
 > # A user home relative path
-> ./cpsign-[version]-uber.jar \
+> ./cpsign-[version]-fatjar.jar \
         @~/runconfigs/train_config.txt \
         [other options]
 
 > # A relative path
-> ./cpsign-[version]-uber.jar \
+> ./cpsign-[version]-fatjar.jar \
         @../runconfigs/train_config.txt \
         [other options]
 ```
@@ -148,16 +149,16 @@ Example in Windows Command prompt
 
 ```
 :: Use absolute path (windows style)
-C:\Users\User\CPSign> java -jar cpsign-[version]-uber.jar @C:\Users\User\CPSign\runconfigs\train_config.txt
+C:\Users\User\CPSign> java -jar cpsign-[version]-fatjar.jar @C:\Users\User\CPSign\runconfigs\train_config.txt
 
 :: Use absolute path (*nix style)
-C:\Users\User\CPSign> java -jar cpsign-[version]-uber.jar @/Users/user/CPSign/runconfigs/train_config.txt
+C:\Users\User\CPSign> java -jar cpsign-[version]-fatjar.jar @/Users/user/CPSign/runconfigs/train_config.txt
 
 :: Use a relative path (forward slashes)
-C:\Users\User\CPSign> java -jar cpsign-[version]-uber.jar @../CPSign/runconfigs/train_config.txt
+C:\Users\User\CPSign> java -jar cpsign-[version]-fatjar.jar @../CPSign/runconfigs/train_config.txt
 
 :: Use a relative path (back slashes)
-C:\Users\User\CPSign> java -jar cpsign-[version]-uber.jar @..\CPSign\runconfigs\train_config.txt
+C:\Users\User\CPSign> java -jar cpsign-[version]-fatjar.jar @..\CPSign\runconfigs\train_config.txt
 ```
 
 ## Configure Logging & Output
@@ -168,7 +169,7 @@ CPSign will by default write information on the screen and to a rather verbose l
 (:-syntax)=
 ## :-syntax
 
-To reduce the number of parameters-flags in CPSign and to create a more natural grouping of arguments, CPSign uses ':-syntax' for many of its arguments. What this means is that sub-parameters are specified together with the parameter itself by separating the arguments and subsequent sub-arguments with a `:` character. E.g. when specifying the scorer-implementation and its unique arguments such as kernel-type, kernel-parameters, cost, epsilon, etc. The available sub-arguments are specific for each scorer-implementations and can be retrieved from the corresponding help-menu. 
+To reduce the number of parameters-flags in CPSign and to create a more natural grouping of arguments, CPSign uses ':-syntax' for many of its arguments. What this means is that sub-parameters are specified together with the parameter itself by separating the arguments and subsequent sub-arguments with a "`:`" character. E.g. when specifying the scorer-implementation and its unique arguments such as kernel-type, kernel-parameters, cost, epsilon, etc. The available sub-arguments are specific for each scorer-implementations and can be retrieved from the corresponding explain program. 
 
 The :-syntax can either be specified with the sub-parameters explicitly named or by using the order of the parameters. The general usage is either (in explicit form):
 
@@ -178,7 +179,7 @@ or, if the order of the sub-parameters is known:
 
 `<param-flag> <main-argument>:<sub-param-1-value>:<sub-param-2-value>`
 
-In the first case, the order of the parameters is not important, whereas in the second, short hand syntax, the order is critical. Mixing of explicit and short hand arguments is allowed as long as the short hand parameters all come before any argument in explicit form (otherwise the order is ambiguous). Note that the order of sub-parameters may change between versions of CPSign so the explicit version should be preferred for setting up scripts that can be used over a longer time.
+In the first case, the order of the parameters is not important, whereas in the second, short hand syntax, the order is critical. Mixing of explicit and short hand arguments is allowed as long as the short-hand parameters all come before any argument in explicit form (otherwise the order is ambiguous). Note that the order of sub-parameters may change between versions of CPSign so the explicit version should be preferred for setting up scripts that can be used over a longer time.
 
 ### Example
 Consider the example of setting the scorer to be `LinearSVC` and setting the parameters `cost` and `epsilon` to 100 and 0.01, respectively. Running `explain scorer` shows that cost is the first parameter and epsilon is the second, thus the following arguments are identical.
@@ -190,12 +191,13 @@ Consider the example of setting the scorer to be `LinearSVC` and setting the par
 ```
 
 
+(list-range)=
 ## Specifying lists of numbers as parameter
-Specifying a list of numbers, e.g. when choosing multiple confidence values or specifying which parameters to try out in {ref}`tune`/{ref}`tune-scorer`, can be done in several different ways. The first and most straight forward way is to list them explicitly, but this can be tedious if you wish to specify many numbers. An alternative way is to specify them using the syntax:
+Specifying a list of numbers, e.g. when choosing multiple confidence levels or specifying which parameters to try out in {ref}`tune`/{ref}`tune-scorer`, can be done in several different ways. The first and most straightforward way is to list them explicitly, but this can be tedious if you wish to specify many numbers. An alternative way is to specify them using the syntax:
 ```
 <start>:<stop>[:step][:base] 
 ```
-where cpsign will generate a list automatically by enumerating values. Note that this syntax basically mimic the `range` function from python - but with the added `base` argument. `base` can be given in any position of the values separated by the colon character and is recognized by writing either `b=<number>` or `base=<number>`. The way the list is enumerated is either (when no base is added): `start`, `start+step`, `start+2*step`, ..., `stop`. If the optional `base` argument is given, the enumerated values given of the `<start>:<stop>[:step]` section will be applied as exponents to the `base`, one by one. Further note that the `step` argument is not required, and is `1` by default, i.e. `0:10` enumerates the same list as `0:10:1`. Here are some examples to show how things work:
+where CPSign will generate a list automatically by enumerating values. Note that this syntax basically mimics the `range` function from python - but with the added `base` argument. `base` can be given in any position of the values separated by the colon character and is recognized by writing either `b=<number>` or `base=<number>`. The way the list is enumerated is either (when no base is added): `start`, `start+step`, `start+2*step`, ..., `stop`. If the optional `base` argument is given, the enumerated values given of the `<start>:<stop>[:step]` section will be applied as exponents to the `base`, one by one. Further note that the `step` argument is not required, and is `1` by default, i.e. `0:10` enumerates the same list as `0:10:1`. Here are some examples:
 
 | Input | Enumerated list | Remarks |
 |:------|:--------|:---|
@@ -206,17 +208,17 @@ where cpsign will generate a list automatically by enumerating values. Note that
 |`-10:-2:2:b=2` | 2^-10, 2^-8, .., 2^-2 | E.g. specifying gamma values in tune |
 |`0:10:2,100,1000`| 0, 2, .., 10, 100, 1000 | Combine enumeration and explicit numbers |
 
-If you are uncertain about the syntax and wish to try it out before using it and potentially get unwanted behavior you can test it out using `explain list-syntax --test <your range argument>` to see what cpsign will make out of it. Further note that this enumeration is capped at producing at most 1000 entries, and will fail if you input something that would result in excess of that, this applies both to the testing function and to all arguments given to the CLI.
+If you are uncertain about the syntax and wish to try it out before using it and potentially get unwanted behavior you can test it out using `explain list-syntax --test <your range argument>` to see what CPSign will make out of it. Further note that this enumeration is capped at producing at most 1000 entries, and will fail if you input something that would result in excess of that, this applies both to the testing function and to all arguments given to the CLI.
 
 ## Encryption
 
-Precomputed data and predictor models can optionally be saved in encrypted format if you have the required extension on your classpath (see {ref}`secure_data` information). Once you have the extension you can generate an encryption key using the {ref}`generate-key` program, this can either be a text-string or saved directly to a file. The text-string is then passed to the `--key` parameter, or the encryption file to `--key-file`, both when generating encrypted output ({ref}`precompute`, {ref}`transform` or {ref}`train`) and when using the encrypted models/data as input ({ref}`train`, {ref}`predict` etc). Note that the file version is recommended both because the possible keys is larger and that passing the key as plain text in the console is a security 
+Precomputed data and predictor models can optionally be saved in encrypted format if you have the required extension on your classpath (see {ref}`secure_data` information). Once you have the extension you can generate an encryption key using the {ref}`generate-key` program, this can either be a text-string or saved directly to a file. The text-string is then passed to the `--key` parameter, or the encryption file to `--key-file`, both when generating encrypted output ({ref}`precompute`, {ref}`transform` or {ref}`train`) and when using the encrypted models/data as input ({ref}`train`, {ref}`predict` etc). Note that the file version is recommended both because the number of possible keys is larger and that passing the key as plain text in the console/terminal is a potential security risk depending on your setup.
 
 ## Progress bar
 
-CPSign write out text continuously during each run, except in case it is silenced by the user. In case a graphical view of the progress status is desired, it's possible to add the `--progress-bar` flag. Using `--progress-bar` outputs the progress in Unicode format, which is poorly rendered in case it is not supported by the terminal or environment used, e.g. in case output is viewed using a text-file in retrospect, in which case we do not recommend using the progress bar anyways.
+CPSign write out text continuously during each run, except in case it is silenced by the user. In case a graphical view of the progress status is desired, it's possible to use the `--progress-bar` flag. Using `--progress-bar` outputs the progress in Unicode format, which is poorly rendered in case it is not supported by the terminal or environment used, e.g. in case output is viewed using a text-file in retrospect, in which case we do not recommend using the progress bar anyways.
 
-If you are both using the progress bar option and get all text output written to the terminal at the same time, the output will be messy, in that case the standard out (normal cpsign text) should be separated from the standard error (progress bar). This can be done e.g. by sending standard out to a text file and only view the progress bar in the terminal, by using i.e. `> ./cpsign-[version]-uber.jar train ..... > log.txt` which then only leave standard error text to be sent to the terminal, thus separating the output so it is displayed correctly.
+If you are both using the progress bar option and get all text output written to the terminal at the same time, the output will be messy, in that case the standard out (normal cpsign text) should be separated from the standard error (progress bar). This can be done e.g. by sending standard out to a text file and only view the progress bar in the terminal, by using i.e. `> ./cpsign-[version]-fatjar.jar train ..... > log.txt` which then only leave standard error text to be sent to the terminal, thus separating the output so it is displayed correctly.
 
 Note that the progress bar is non-conflicting when running with the `--silent` flag, so it is fully possible to ignore the standard output and only display the progress bar.
 

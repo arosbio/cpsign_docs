@@ -1,129 +1,44 @@
 
-(images)=
-
 # Image rendering
 
-CPSign has functionality for rendering and generating molecule images.
+CPSign has functionality for rendering images of molecules. This functionality is mainly intended to give a visual interpretation of the prediction of a given molecule, either in the form of which substructure of the molecule had the largest impact on the prediction or as a *gradient* - depicting the impact each atom had to the prediction. Note that the Signatures Molecular Descriptor [[1-3]](../references.md) must be used for both these image types, but the full descriptor set can include additional descriptors as well. Further note that the model must include **percentiles** information, which is computed during training of the predictor model (controlled by adding the `--percentiles` flag in the CLI).
 
 ```{contents} Table of Contents
 :backlinks: top
 :depth: 3
 ```
 
-## Image Creation
 
-CPSign comes with the possibility of generating images for predicted molecules in two ways:
+## Image types
 
-**Color complete molecule gradient** The coloring is based on computing the full molecular gradient,
-meaning that all signatures respective contribution are taken into account and then tracked back to the atoms
-each signature stems from. This will thus color contribution for each atom in the molecule.
+As stated above, there are two rendering options:
 
-**Color Significant Signature only** The coloring is based on the Significant Signature only. Atoms that are part of
-the Significant Signature will be colored after a given highlight color. When using the CLI, the significant signature
-will be calculated using changes of the highest p-value for ACP classification, when using the API the
-calculation can be done on either of the classes.
+**Color complete molecule gradient**: This coloring is based on the full molecular gradient, depicting each and every atoms respective contribution in the prediction. This is done by computing the contribution for each individual signature and then tracking from which atoms they stem from, each atoms final contribution is computed by averaging the contribution all signatures that it is considered the center of. The rendered molecules will thus have a color on every atom, assuming that you have not done extensive feature selection so that some atoms do not have any signatures stemming from them.
 
+**Color Significant Signature only**: This coloring is based on the *Significant Signature* only, i.e. finding the descriptor that had the highest influence on the prediction score (considering absolute values, the contribution could be negative). Atoms that are part of the Significant Signature will be colored after a given highlight color. When using the CLI, the significant signature will be calculated using changes of the highest p-value for conformal classifiers, or change in the probability of the most probable class for Venn-ABERS classifiers.
+
+
+(images-cli)=
 ## Image rendering on Command Line
 
-Both types of images can be generated at the same run, each controlled by their own parameters.
-Image size, atom numbering, legends, output files and coloring are all configurable by parameters as can
-be seen in the sections below.
+Both types of images can be generated at the same time, each controlled by their own set of parameters. For simplicity the parameter names start with either `gi:` for controlling gradient images or `si:` for significant signature images, but are otherwise almost identical. Activating the rendering of either type requires the user to give the `-gi, --gradient-images` or `-si, --signature-images` flags. Apart from this, the only parameter that differ between the two types of renderings is the parameter for controlling the coloring;
+- For gradients images you specify the color-scheme using the `-gi:cs, --gi:color-scheme` parameter, which takes either one of the pre-sets (can be specified with a number 1-5, see {ref}`color-schemes` section for how they look) or either 2 or 3 colors separated by a colon character (`:`), e.g. `green:blue:red`. The colors can be given as common color names, RGB-values or hex-codes. Examples; `forestgreen`, `rgb(15,16,100)` and `#730707`. When giving 2 colors these specifies the colors of the endpoints (most negative contribution and most positive contribution, respectively), whereas giving 3 colors specify the most negative, no contribution and the highest possible contribution.
+- For Significant Signature images you specify the color to highlight the atoms part of the significant signature with using the `-si:c, --si:color` parameter. The remaining atoms of the molecules will be surrounded by a gray-ish color for visually pleasing images.
 
-### Gradient images
+Again note that the model must include the **percentiles** information, controlled by adding the `--percentiles` flag during the preceding {ref}`train` step.
 
-The gradient options are the following:
 
-```text
-> java -jar cpsign-[version].jar predict gradient
-
-                                         predict
-------------------------------------------------------------------------------------------
-  Gradient image output:
-    -gi | --gradient-images
-       Create a Gradient image for each predicted molecule.
-    -if | --image-file                       [path]
-       Path to where generated images should be saved, can either be a path to a specific
-       folder or a full path including a file name (only .png file ending supported).
-       Every image will be named '[name]-[count].png' or '[name]-[$cdk:title].png' where
-       name is either a default name or the specified name to this parameter (e.g. '.' -
-       current folder using default file name, '/tmp/imgs/DefaultImageName.png' - use
-       /tmp/imgs/ as directory and use 'DefaultImageName' as file name)
-       Default: imgs/GradientDepiction.png
-    -cs | --color-scheme                     [text]
-       The specified color-scheme (case in-sensitive), options:
-         (1) blue:red
-         (2) red:blue
-         (3) red:blue:red
-         (4) cyan:magenta
-         (5) rainbow
-             custom - contact Aros Bio for custom requirements!
-       Default: 1
-    --color-legend
-       Add a color legend at the bottom of the image
-    --atom-numbers
-       Depict atom numbers
-    --atom-number-color                      [color name] | [hex color]
-       Color of the atom numbers
-       Default: BLUE
-    -ih | --image-height                     [text]
-       The height of the generated images (in pixels)
-       Default: 400
-    -iw | --image-width                      [integer]
-       The width of the generated images (in pixels)
-       Default: 400
-```
-
-Coloring is configured using the `--color-scheme` parameter and the possible values can be seen in [Color schemes] section.
-
-### Significant signature images
-
-The significant signature options are the following:
-
-```text
-> java -jar cpsign-[version].jar predict significant
-
-                                         predict
-------------------------------------------------------------------------------------------
-  Significant Signature image output:
-    -si | --signature-images
-       Create a Significant Signature image for each predicted molecule
-    -sf | --signature-image-file             [path]
-       Path to where generated images should be saved, can either be a path to a specific
-       folder or a full path including a file name (only .png file ending supported).
-       Every image will be named '[name]-[count].png' or '[name]-[$cdk:title].png' where
-       name is either a default name or the specified name to this parameter (e.g. '.' -
-       current folder using default file name, '/tmp/imgs/DefaultImageName.png' - use
-       /tmp/imgs/ as directory and use 'DefaultImageName' as file name)
-       Default: imgs/SigificantSignatureDepiction.png
-    -hc | --highlight-color                  [color name] | [hex color]
-       The color that should be used for the highlighting of the significant signature
-       Default: BLUE
-    --signature-color-legend
-       Add a color legend at the bottom of the image
-    --signature-atom-numbers
-       Depict atom numbers
-    --signature-atom-number-color            [color name] | [hex color]
-       Color of the atom numbers
-       Default: BLUE
-    -sh | --signature-image-height           [text]
-       The height of the generated images (in pixels)
-       Default: 400
-    -sw | --signature-image-width            [integer]
-       The width of the generated images (in pixels)
-       Default: 400
-```
-
-Instead of a color scheme as for gradient images, the significant signature has a highlight color
-(`--highlight-color`) that decides the color of the significant signature.
 
 ### Example Images
+
+Here are some code snippets, note that you need more arguments (e.g. the molecule and the model) in order to get the output. Here showing that for instance the color inputs is case-independent.
 
 **Significant Signature, using:** 
 
 ```bash
-> java -jar cpsign-[version].jar predict \
+> ./cpsign-[version]-fatjar.jar predict \
    --signature-images \
-   --highlight-color 'RED' \
+   --si:color RED \
    ...
 ```
 
@@ -135,10 +50,10 @@ Instead of a color scheme as for gradient images, the significant signature has 
 **Significant Signature only with color legend, using:** 
 
 ```bash
-> java -jar cpsign-[version].jar predict \
+> ./cpsign-[version]-fatjar.jar predict \
    --signature-images \
-   --highlight-color 'RED' \
-   --signature-color-legend \
+   --si:color red \
+   --si:legend \
    ...
 ```
 
@@ -150,10 +65,10 @@ Instead of a color scheme as for gradient images, the significant signature has 
 **Molecule gradient with rainbow color scheme, using:**
 
 ```bash
-> java -jar cpsign-[version].jar predict \
+> ./cpsign-[version]-fatjar.jar predict \
    --gradient-images \
-   -cs 'rainbow' \
-   --color-legend \
+   -gi:cs rainbow \
+   --gi:legend \
    ..
 ```
 
@@ -165,12 +80,11 @@ Instead of a color scheme as for gradient images, the significant signature has 
 **Molecule gradient with color legend and atom numbers using:**
 
 ```bash
-> java -jar cpsign-[version].jar predict \
+> ./cpsign-[version]-fatjar.jar predict \
    --gradient-images
-   -cs "red:blue:red" \
-   --color-legend \
-   --atom-numbers \
-   --atom-number-color 'BLACK' \
+   -gi:cs red:blue:red \
+   --gi:legend \
+   --gi:atom-numbers BLACK \
    ..
 ```
 
@@ -179,11 +93,139 @@ Instead of a color scheme as for gradient images, the significant signature has 
 :scale: 50%
 ```
 
+
+
+## Image rendering in API
+
+Image rendering in the API can be done in two ways;
+
+1. `MoleculeDepictor`: Only renders java [BufferedImage] of the molecule, including highlighting. It cannot add any other elements to the image apart from the molecule itself.
+2. `AtomContributionRenderer` and `SignificantSignatureRenderer` classes: More complex classes that allows the user to add additional *fields* (element) in the final depiction, e.g. setting a title and legend. These work by setting up a "template" using a builder class, containing all the desired fields in the final images, these templates can then be called with a `render` method with all information needed to make the rendering for a molecule. The output is a wrapped java [BufferedImage] with utility methods for saving the output as a Base64 String or saved directly to a PNG file.
+
+Regardless if you choose the builder classes or the `MoleculeDepictor`, you will have to take care of how to color the atoms. When you calculate the gradient of a molecule with `predictSignificantSignature()` method you will get a both a set of atoms that are part of the Significant Signature and a map for the full molecule gradient (`IAtom` to a floating point value). If you wish to use the full molecule gradient, you will have to make sure that the floating point value is normalized (otherwise the depiction will likely not give you much information). If the model was trained through the CLI this is achieved using the flag `--percentiles` and the argument `--percentiles-data`, if using the Java API you have to call the `computePercentiles(java.util.Iterator)` method after training:
+
+```java
+// Load data
+acp.addRecords(iterator,
+            "Ames test categorisation",
+            new NamedLabels(Arrays.asList("nonmutagen", "mutagen")));
+
+// Train
+acp.train();
+
+// Compute percentiles
+acp.computePercentiles(iterator);
+```
+
+### MoleculeDepictor
+
+If you wish to have flexibility in the depiction, for instance creating a larger report with multiple molecule depictions, render your image on a specific background (e.g. with a water-mark) or include a color coding bar, you can use the `MoleculeDepictor` class. The `MoleculeDepictor` renders images and returns them as a [BufferedImage], giving you all the flexibility that you could desire. The general usage:
+
+```java
+// Get an instance of the MoleculeDepictor with the ColorGradient you wish to use
+
+MoleculeDepictor mp = new MoleculeDepictor.Builder()
+   .h(height) // image height in pixels
+   .w(width) // image width in pixels
+   .colorScheme(GradientFactory.getRainbowGradient())
+   .showAtomNumbers(true) 
+   .bg(Color.WHITE) // Back ground color
+   // .. more tweaks
+   .build();
+
+// Either generate a new BufferedImage and fill it
+BufferedImage img = mp.depict(molecule, atomColors);
+// Or draw into an existing BufferedImage
+mp.depict(molecule, atomColors, img, g2, drawArea);
+
+// Save the image as a file
+ImageIO.write(img, "png", new File("/tmp/image.png");
+```
+
+There `GradientFactory` generates gradients these factory methods:
+
+- *getDefaultBloomGradient*
+- *getBlueRedGradient*
+- *getRedBlueGradient*
+- *getRedBlueRedGradient*
+- *getCyanMagenta*
+- *getRainbowGradient*
+- *getCustomGradient(String)* - accepts a JSON string with points to interpolate between
+
+It's also fully possible to implement the `ColorGradient` interface if you wish to make your own.
+
+There is a working example of how to generate customized images our [GitHub] repository, in the class `GeneratePredictionImages.java`. That code currently depicts this image:
+
+```{image} imgs/subplots.png
+:align: center
+```
+
+### `AtomContributionRenderer` and `SignificantSignatureRenderer` classes
+
+The two classes `GradientFigureBuilder` and `SignificantSignatureFigureBuilder` are new to v0.7.0 of CPSign
+and replaces the old `MolImageDepictor` class. These now come with quite a few configurations and is much more
+configurable. Once you call the `build()` method you get a `MoleculeFigure` that holds the rendered BufferedImage
+and supports there output formats:
+
+- Java [BufferedImage]
+- Base64 String
+- PNG file
+
+The usage is fairly straight forward (example taken from examples in [GitHub]):
+
+```java
+
+// Instantiate builder instance
+AtomContributionRenderer.Builder builder = new AtomContributionRenderer.Builder()
+   .colorScheme(GradientFactory.getRainbowGradient()) // Decide which gradient or color scheme to use
+   .height(550) // Figure height in pixels
+   .width(499); // Figure width in pixels
+
+// Configure a fixed title field
+String titleText = "Rainbow gradient";
+AttributedString title = new AttributedString(titleText);
+// See available attributes at: https://docs.oracle.com/javase/8/docs/api/java/awt/font/TextAttribute.html
+title.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, titleText.length()); // Add underline
+title.addAttribute(TextAttribute.FOREGROUND, Color.RED, 0, 7); // Add red text for "Rainbow"
+title.addAttribute(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE, 0, 7);
+// Create the fixed (immutable) text field as title
+TextField titleField = new TextField.Immutable.Builder(title).alignment(Vertical.LEFT_ADJUSTED).build();
+builder.addFieldOverMol(titleField); // title on top if depiction
+
+// Add a boarder around the molecule
+Boarder molBoarder = new Boarder.Builder().shape(BoarderShape.ROUNDED_RECTANGLE).stroke(new BasicStroke(3f)).color(Color.BLUE).build();
+builder.molLayout(new CustomLayout.Builder().boarder(molBoarder).margin(new Margin(5)).build());
+
+// Add a field below the molecule with the color scheme
+builder.addFieldUnderMol(new ColorGradientField.Builder(builder.colorScheme()).build());
+// Render the 'testMolecule' atom using the SignificantSignature prediction
+MolRendering fig = builder.build().render(new RenderInfo.Builder(testMolecule, ss).build()); 
+// Save it to a file
+fig.saveToFile(new File(imageDir, "FullGradientRainbow.png"));
+```
+
+The resulting image:
+
+```{image} imgs/FullGradientRainbow.png
+:align: center
+```
+
+Usage of the `SignificantSignatureFigureBuilder` is equivalent except the color configuration which is performed by setting the `highlight(Color)` and `bloomBackground(Color)`, rather than the `colorScheme(ColoGradient)` used in the above example.
+
+### Figure dimensions
+
+Image dimension can both be set on the `MoleculeDepictor` and on the renderer-classes, where the latter has precedence over the former. When using the rendered-classes these will overwrite the dimensions of the wrapped MoleculeDepictor once the dimensions have been calculated (i.e. to account for additional figure fields/elements).
+
+[bufferedimage]: https://docs.oracle.com/en/java/javase/11/docs/api/java.desktop/java/awt/image/BufferedImage.html
+[github]: https://github.com/arosbio/cpsign-examples
+
+
+
 (color-schemes)=
 
 ## Color schemes
 
-Color schemes supported by CPSign (both API and CLI).
+Predefined color schemes supported by CPSign (both API and CLI).
 
 **BLUE:RED (Default)**
 
@@ -214,148 +256,3 @@ Color schemes supported by CPSign (both API and CLI).
 ```{image} imgs/RainbowGradient.png
 :align: center
 ```
-
-## Image rendering in API
-
-Image rendering in the API can be done in two basic ways;
-
-1. {code}`MoleculeDepictor`: Only renders java [BufferedImage] of the molecule, including highlighting. Very flexible but forces you to do everything but the depiction yourself.
-2. {code}`GradientFigureBuilder` and {code}`SignificantSignatureFigureBuilder` classes: Builder classes that allows to set fields under and over the molecule, also supports rendering the figure as a java [BufferedImage], Base64 String or saved it as PNG file.
-
-Regardless if you choose the builder classes or the {code}`MoleculeDepictor`, you will have to take care of how to color the atoms. When you calculate the
-gradient of a molecule with {code}`predictSignificantSignature()` method you will get a both a set of atoms that are part of the Significant Signature and a map
-for the full molecule gradient ({code}`IAtom` to a floating point value). If you wish to use the
-full molecule gradient, you will have to make sure that the floating point value is normalized (otherwise the depiction will likely not give you much information). If the
-model was trained through the CLI this will have been done for you, otherwise you will have to either fix this somehow yourself or by calling the {code}`computePecentiles()` method:
-
-```java
-// Load data
-signACP.fromMolsIterator(iterator,
-            "Ames test categorisation",
-            new NamedLabels(Arrays.asList("nonmutagen", "mutagen")));
-
-// Train
-signACP.train();
-
-// Compute percentiles
-signACP.computePercentiles(iterator);
-```
-
-In the CLI implementation, CPSign uses the training data set to compute the lower and upper ranges, but as a API user you are free to run any dataset
-to compute percentiles (e.g. use the test dataset). The percentiles will in either way be used for normalizing the output in a model and dataset-dependet way.
-Your free to use any other normalization if you would like (e.g. a per molecule normalization).
-
-### MoleculeDepictor
-
-If you wish to have flexibility in the depiction, for instance creating a larger report with multiple molecule depictions, render your image on a
-specific background (e.g. with a water-mark) or include a color coding bar, you can use the {code}`MoleculeDepictor` class.
-The {code}`MoleculeDepictor` renders images and returns them as a [BufferedImage], giving you all the flexibility that you could desire.
-The general usage:
-
-```java
-// Get an instance of the MoleculeDepictor with the IColorGradient you wish to use
-MoleculeDepictor mp = MoleculeDepictor.getBloomDepictor(GradientFactory.getRainbowGradient());
-
-// Set the background
-BufferedImage pageImage = new BufferedImage(mp.getImageWidth(), mp.getImageHeight(), BufferedImage.TYPE_INT_RGB);
-Graphics2D graphics = pageImage.createGraphics();
-graphics.setColor(Color.WHITE);
-graphics.fillRect(0, 0, width, height);
-
-// Get a BufferedImage of the rendered molecule
-BufferedImage img = mp.depict(molecule, coloringMap);
-
-graphics.drawImage(img, 0,0,null);
-
-// Save the image as a file
-ImageIO.write(pageImage, "png", new File("/tmp/image.png");
-```
-
-There {code}`GradientFactory` generates gradients these factory methods:
-
-- *getDefaultBloomGradient*
-- *getBlueRedGradient*
-- *getRedBlueGradient*
-- *getRedBlueRedGradient*
-- *getCyanMagenta*
-- *getRainbowGradient*
-- *getCustomGradient(String)*
-
-It's also fully possible to implement the {code}`IColorGradient` interface if you wish to make your own.
-
-The {code}`MoleculeDepictor` has two factory methods for getting an instance of the class:
-
-- *getBloomDepictor*
-- *getBloomDepictor(IColorGradient)*
-
-There is a working example of how to generate customized images our [GitHub] repository, in the class {code}`GeneratePredictionImages.java`. That code currently
-depicts this image:
-
-```{image} imgs/subplots.png
-:align: center
-```
-
-### MoleculeFigureBuilder classes
-
-The two classes {code}`GradientFigureBuilder` and {code}`SignificantSignatureFigureBuilder` are new to v0.7.0 of CPSign
-and replaces the old {code}`MolImageDepictor` class. These now come with quite a few configurations and is much more
-configurable. Once you call the {code}`build()` method you get a {code}`MoleculeFigure` that holds the rendered BufferedImage
-and supports there output formats:
-
-- Java [BufferedImage]
-- Base64 String
-- PNG file
-
-The usage is fairly straight forward (example taken from examples in [GitHub]):
-
-```java
-// Instantiation requires a MoleculeGradientDepictor
-GradientFigureBuilder gradBuilder = new GradientFigureBuilder(
-     new MoleculeGradientDepictor(
-             GradientFactory.getRainbowGradient()));
-
-// Set a title
-String titleText = "Rainbow gradient";
-AttributedString title = new AttributedString(titleText);
-// See available attributes at: https://docs.oracle.com/javase/8/docs/api/java/awt/font/TextAttribute.html
-title.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, titleText.length()); // Add underline
-title.addAttribute(TextAttribute.FOREGROUND, Color.RED, 0, 7); // Add red text for "Rainbow"
-title.addAttribute(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE, 0, 7); // Italics for "Rainbow"
-TitleField tf = new TitleField(title);
-tf.setAlignment(Vertical.LEFT_ADJUSTED); // default is a centered title
-gradBuilder.addFieldOverImg(tf);
-
-// Add a boarder around the molecule
-Boarder molBoarder = new Boarder(BoarderShape.ROUNDED_RECTANGLE, new BasicStroke(3f), Color.BLUE);
-gradBuilder.getDepictor().addLayout(new CustomLayout(new Padding(0), molBoarder, new Margin(5)));
-
-gradBuilder.addFieldUnderImg(new ColorGradientField(gradBuilder.getDepictor())); // Color legend
-
-// Set figure size
-gradBuilder.setFigureHeight(550);
-gradBuilder.setFigureWidth(499);
-
-// Build the figure
-MoleculeFigure fig = gradBuilder.build(testMol, ss.getMoleculeGradient());
-fig.saveToFile(new File(Configuration.IMAGE_BASE_PATH, "FullGradientRainbow.png"));
-```
-
-The resulting image:
-
-```{image} imgs/FullGradientRainbow.png
-:align: center
-```
-
-Usage of the {code}`SignificantSignatureFigureBuilder` is equivalent except instantiation and the arguments to {code}`build()`
-which instead takes a set of {code}`IAtoms` that should be highlighted.
-
-### MoleculeFigure dimensions
-
-Image dimension can both be set on the {code}`MoleculeDepictor` and on the {code}`MoleculeFigureBuilder`, where the latter has
-precedence over the former. In case no size is explicitly set on the {code}`MoleculeFigureBuilder`, the molecule depiction will
-have the dimensions set on the {code}`MoleculeDepictor` or the default dimensions. Any extra fields and layouts will
-be added on top of the molecule depiction and generate a larger final {code}`MoleculeFigure` in case extra fields has been
-added.
-
-[bufferedimage]: https://docs.oracle.com/javase/7/docs/api/java/awt/image/BufferedImage.html
-[github]: https://github.com/arosbio/cpsign-examples

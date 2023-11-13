@@ -1,72 +1,17 @@
 
 
-(predictors)=
+(sparse-predictors)=
 
 # Predictors
 
-The predictors currently implemented in CPSign are: Aggregated Conformal Predictors (ACP), Transductive Conformal Predictors (TCP)
-and Aggregated Venn-ABERS Predictors (CVAP) ({ref}`[4,5,7,8] <refs>`). They all rely on an underlying {ref}`scoring algorithm <ml_alg>`.
+The predictors currently implemented in CPSign are: Aggregated Conformal Predictors (ACP and CCP), Transductive Conformal Predictors (TCP) and Aggregated Venn-ABERS Predictors (CVAP) ({ref}`[4,5,7,8] <refs>`). They all rely on an underlying {ref}`scoring algorithm <ml_alg>`.
 
 ```{contents} Table of Contents
 :backlinks: top
 :depth: 3
 ```
 
-## File format
 
-CPSign stores numerical data in LibSVM/LibLinear format which is in the form:
-
-```bash
-<label> <index>:<value> <index>:<value> ..
-<label> <index>:<value> <index>:<value> ..
-..
-```
-
-Also note that the `<index>` **must start at 1** and not 0, to conform with LibLinear and LibSVM requirements.
-
-## Problem class
-
-The underlying data structure for numerical problems is the {code}`Problem` class that is accessible through the API. It provides means of manipulating data directly,
-without having to write data to file. Here's some examples of what you can do:
-
-```java
-// Problem-class can be accessed without instantiating the CPSignFactory
-Problem data = Problem.fromSparseFile(InputStream);
-
-// Add data from another file:
-// (requires that all indexing is the same of course!)
-data.readDataFromStream(InputStream);
-
-// Shuffle the records
-data.shuffle();
-
-// Clone a dataset to make a deep copy
-Problem dataClone = data.clone();
-
-// Splitting can be done with random shuffle
-Problem[] problems = data.splitRandom(0.2); // 20% in first Problem, 80% in second one
-
-// Or splitting can be done statically (keep ordering)
-Problem[] problemsStaticSplit = data.splitStatic(100); // Split so first 100 records in first Problem
-Problem[] problemsStaticSplitFraction = data.splitStatic(0.3); // 30% in first, 70% in second
-
-// Write manipulated Problems to file (data now has combined two data files and random shuffled the records)
-data.writeProblemToStream(outputStream, true); // chose to compress or not
-
-// If you wish to encrypt the Problem, instantiate CPSignFactory with a license that
-// supports encryption and get the encryption specification to store/load a Problem
-// in encrypted format
-EncryptionSpecification spec = encryptionFactory.getEncryptionSpec();
-data.writeProblemToEncryptedStream(new FileOutputStream(encryptedFile), spec);
-// Load the Problem back
-Problem fromEncryptedFile = Problem.fromSparseFile(new FileInputStream(encryptedFile), spec);
-```
-
-It is also possible to *rescale* the features in a Problem. This seems to have very little impact on predictive performance when using signatures descriptors
-as long as you start with a signatures height of at least 1 (using height 0 typically leads to larger feature numbers for individual atoms like Carbon, when rescaling
-of features can have a positive impact on performance). Rescaling is done by calling the {code}`problem.rescale()` and rescaling of new examples is done internally and
-saved within the model so the user doesn't need to do any manual work after rescaling is performed. Scaling is done with a normal
-[min-max normalization](<https://en.wikipedia.org/wiki/Feature_scaling#Rescaling_(min-max_normalization)>) to \[0,1\].
 
 (tcp)=
 
@@ -75,42 +20,35 @@ saved within the model so the user doesn't need to do any manual work after resc
 TCP can be instantiated and used in the following way:
 
 ```java
-// Either directly by the classes themselves:
-TCPClassification predictor = new TCPClassification(new LibLinear(LibLinearParameters.defaultClassification()));
+// Define underlying scoring model - this case a SVC 
+LinearSVC svc = new LinearSVC();
+// Decide on nonconformity measure to use
+// Here using the default one, requiring a SVC as scoring model
+NCMMondrianClassification ncm = new NegativeDistanceToHyperplaneNCM(svc);
+// Instantiate the CPClassifier instance
+TCPClassifier predictor = new TCPClassifier(ncm);
 
-// Or by CPSignFactory
-TCPClassification predictor = factory.createTCPClassification(factory.createLibLinearClassification());
+// Load training data
+Dataset data = ...
 
-// Train the predictor (using the Problem with training data already loaded!)
+// Train the predictor
 predictor.train(data);
 
-// For a new example - do a prediction
-List<SparseFeature> example = ..;
-Map<Integer, Double> pvals = predictor.predict(example);
+// Predict a new test object
+FeatureVector testObject = ..
+Map<Integer, Double> pvals = predictor.predict(testObject);
 
-// can also compute gradient - this is mostly useful for data derived form Signatures Descriptors
-predictor.calculateGradient(example);
-
-// Saving the predictor (not very useful in TCP as training is done at prediction-time, not batch before as in ACP)
-ModelCreator.generateTrainedModel(predictor, new ModelInfo("TCP predictor"), new File("predictor.jar"), null);
+// Saving the predictor - i.e. training data with all hyper-parameters
+ConfAISerializer.saveModel(predictor, new File("predictor.jar"), null);
 ```
 
-Note that the {code}`predictor.train(data)` only sets the current training data set so it is available for the predictor to use,
-each prediction requires the underlying scoring algorithm to be trained. This means that it is not as much gain in run time when saving
-a TCP predictor, the only thing saved is the training data and the parameters of the predictor. Also note that
-this also means that predictions are very computationally demanding for a TCP predictor as the scoring algorithm needs re-training for each prediction.
-TCP is mostly intended for smaller problems, where no data can be left out for *calibrating* predictions (as used in ACP and CVAP).
-Also note that LibLinear is **a lot** faster to train compared to LibSVM, so chose {ref}`scoring algorithm <ml_alg>` according
-to restraints in runtime and quality of the predictions.
+Note that the `predictor.train(data)` only sets the current training data so it is available for the predictor to use, each prediction requires the underlying scoring algorithm to be trained. This means that it is not as much gain in run time when saving a TCP predictor, the only thing saved is the training data and the parameters of the predictor. Also note that this also means that predictions are computationally demanding for a TCP predictor as the scoring algorithm needs re-training for each prediction. TCP is mostly intended for smaller problems, where no data can be left out for *calibrating* predictions (as used in ACP and CVAP). Also note that LibLinear is **a lot** faster to train compared to LIBSVM, so chose {ref}`scoring algorithm <ml_alg>` according to restraints in runtime and quality of the predictions.
 
 (acp)=
 
 ## Aggregated Conformal Prediction
 
-Aggregated Conformal Prediction (ACP) and Cross-Conformal Prediction (CCP) are aggregations of multiple Inductive Conformal Predictors (ICPs).
-The ACP and CCP only differs in how training data is partitioned, whereas CCP has a strict division so that each sample is part of the
-*calibration set* only once, what is called **Folded Sampling**, and ACP is a random sampling of *calibration set* for each ICP, called **Random Sampling**.
-Here is the normal usage of the ACP/CCP Predictor (Classification):
+Aggregated Conformal Prediction (ACP) and Cross-Conformal Prediction (CCP) are aggregations of multiple Inductive Conformal Predictors (ICPs) or Split-Conformal Predictors. The ACP and CCP only differs in how training data is partitioned, where CCP has a strict division so that each sample is part of the *calibration set* only once, what is called **Folded Sampling**, and ACP uses a random sampling of *calibration set* for each ICP, called **Random Sampling**. Here is the normal usage of the ACP/CCP Predictor (Classification):
 
 ```java
 // Chose your sampling-strategy Folded = CCP, Random = ACP, stratified possible (only for classification)
@@ -119,28 +57,31 @@ new RandomStratifiedSampling(nrModels, calibrationRatio);
 new FoldedSampling(nrFolds);
 new FoldedStratifiedSampling(nrFolds);
 
-// Instantiate using constructors
-ACPClassification predictor = new ACPClassification(new LibSvm(LibSvmParameters.defaultClassification()), strategy);
+// Chose the underlying scoring algorithm
+C_SVC svc = new C_SVC(); // RBF kernel SVC 
 
-// Or using CPSignFactory
-ACPClassification predictor = factory.createACPClassification(factory.createLibLinearClassification(), strategy);
+// Chose the nonconformity metric
+NCMMondrianClassification ncm = new NegativeDistanceToHyperplaneNCM(svc);
 
-// Train the predictor (using the Problem with training data already loaded!)
+// Instantiate predictor instance
+ACPClassifier predictor = new ACPClassifier(ncm, strategy);
+
+// load data & manipulate data
+Dataset data = .. 
+
+// Train the predictor 
 predictor.train(data);
 
-// For a new example - do a prediction
-List<SparseFeature> example = ..;
-Map<Integer, Double> pvals = predictor.predict(example);
+// Predict a new test object
+FeatureVector testObject = ..;
+Map<Integer, Double> pvals = predictor.predict(testObject);
 
-// can also compute gradient - this is mostly useful for data derived form Signatures Descriptors
-predictor.calculateGradient(example);
-
-// Save predictor
-predictor.setModelInfo(new ModelInfo("ACP Classification")); // Minimum info is to set the model name
-predictor.save(new File("predictor.jar"));
+// Save predictor (optionally set model info before)
+predictor.setModelInfo(new ModelInfo("ACP for <some endpoint>"));
+ConfAISerializer.saveModel(predictor, new File("predictor.jar"), null);
 
 // Load a previously saved predictor
-ACPClassification loadedPredictor = (ACPClassification) ModelLoader.loadModel(new File("predictor.jar"), null);
+ACPClassifier loadedPredictor = (ACPClassifier) ConfAISerializer.loadPredictor(new File("predictor.jar"), null);
 ```
 
 Same example but for regression:
@@ -150,87 +91,100 @@ Same example but for regression:
 SamplingStrategy strategy = new RandomSampling(nrModels, calibrationRatio);
 new FoldedSampling(nrFolds);
 
-// Instantiate using constructors
-ACPRegression predictor = new ACPRegression(new LibLinear(LibLinearParameters.defaultRegression()), strategy);
+// Chose underlying scoring algorithm
+SVR svr = new EpsilonSVR(); // RBF kernel SVR
+// Chose error model (if NCM uses one)
+SVR errorModel = new LinearSVR(); // e.g. linear kernel SVR, or use same as scorer
 
-// Or using CPSignFactory
-ACPRegression predictor = factory.createACPRegression(factory.createLibLinearRegression(), strategy);
+// Chose NCM to use
+double beta = 0.01; // Smoothing parameter
+NCMRegression ncm = new LogNormalizedNCM(svr,errorModel,beta);
 
-// Train the predictor (using the Problem with training data already loaded!)
+// Instantiate predictor instance
+ACPRegressor predictor = new ACPRegressor(ncm, strategy);
+
+// Load data 
+Dataset data = ..
+// Train the predictor
 predictor.train(data);
 
-// For a new example - do a prediction, either using single or multiple confidences
-List<SparseFeature> example = ..;
-CPRegressionResult res = predictor.predict(example, confidence);
-List<CPRegressionResult> results = predictor.
+// Predict a new test object
+FeatureVector testObject = ..
+// Predict using single confidence level
+CPRegressionPrediction res = predictor.predict(testObject, 0.8);
+
+// Use several conf levels 
+CPRegressionPrediction results = predictor.
      predict(example, Array.asList(conf1, conf2, conf3));
-// Predictions can also be performed using a distance to the predicted midpoint
-List<CPRegressionResult> distanceResults = predictor.
-     predictDistances(example, Arrays.asList(0.5, 1.5))
 
-// can also compute gradient - this is mostly useful for data derived form Signatures Descriptors
-predictor.calculateGradient(example);
+// Predictions can also be performed using a prediction interval width to get what level of confidence that would correspond to
+CPRegressionPrediction distanceResults = predictor.
+     predictConfidence(example, Arrays.asList(0.5, 1.5))
 
-// Save predictor
-predictor.setModelInfo(new ModelInfo("ACP Regression")); // Minimum info is to set the model name
-predictor.save(new File("predictor.jar"));
+// Save the predictor (optionally set some meta info)
+predictor.setModelInfo(new ModelInfo("ACP Regression"));
+ConfAISerializer.saveModel(new File("predictor.jar"), null);
 
 // Load a previously saved predictor
-ACPRegression loadedPredictor = (ACPRegression) ModelLoader.loadModel(new File("predictor.jar"), null);
+ACPRegressor loadedPredictor = (ACPRegressor) ConfAISerializer.loadPredictor(new File("predictor.jar"), null);
 ```
 
-The regression case differs a bit compared to classification in that a confidence or distance is required to set at predict-time. Thus the result is a {code}`CPRegressionResult` giving many different values:
-: - {code}`getY_hat()` : The median midpoint from all ICPs
-  - {code}`getConfidence()` : Either given confidence to {code}`predict(conf)` or calculated confidence from {code}`predictDistance(distance)`
-  - {code}`getDistance()` : Either given distance to {code}`predictDistance(distance)` or calculated distance from {code}`predict(conf)` (i.e. distance from midpoint to either of the sides of the interval).
-  - {code}`getE_hat()` : Predicted error from the error-model (in case an error model is used)
-  - {code}`getInterval()` : The calculated interval: (*ŷ-distance*, *ŷ+distance*)
-  - {code}`getCappedInterval()` : The same as above interval, but capped to min and max values found in training data
-  - {code}`getMaxObs()` : Maximum observed value found in training data (used for capping output interval)
-  - {code}`getMinObs()` : Minimum observed value found in training data (used for capping output interval)
+The output from the regression model differs compared to classification, as the confidence or distance is required to set at predict-time. Thus the result is a `CPRegressionResult` object containing several values:
+  - `getY_hat()` : The median/mean midpoint from all ICPs
+  - `getMinObs()` : Minimum observed value found in training data (used for capping prediction interval)
+  - `getMaxObs()` : Maximum observed value found in training data (used for capping prediction interval)
+  - `getIntervalScaling()` : The scaling of the prediction interval, i.e. the denominator from the nonconformity function - i.e. scaling depending on the difficulty (including potential smoothing). If no scaling should be applied, this should be 1.
+
+These values are common for the prediction, and then one or several `PredictedInterval`s are given depending on confidence levels. These are fetched from or of the methods `getIntervals()`, `getWidthToConfidenceBasedIntervals()` or `getInterval(conf)`. Each `PredictedInterval` has the following getter methods:
+- `getIntervalHalfWidth()`: Half of the interval width, such as the prediction interval is [$\hat{y}-hv$,$\hat{y}+hv$], where $hv$ stands for the interval half width.
+- `getIntervalWidth()` : The full width of the interval, i.e. 2 times the above value
+- `getInterval()` : A range object with the lower and upper endpoints
+- `getCappedInterval()` : A range object with the lower and upper endpoints, but capped according to the `getMinObs()` and `getMaxObs()` values from the `CPRegressionResult` - so prediction intervals cannot span outside the observed label space.
+- `getConfidence()` : The confidence level this interval corresponds to
+
+
 
 (cvap)=
 
 ## Venn-ABERS Prediction
-
-VAP is new to CPSign v0.7.0, usage is similar to ACP classification, allowing both for a
-folded (Cross Venn-ABERS) or random (Aggregated Venn-ABERS) prediction:
+The Venn-ABERS predictor works in a similar fashion as the ACPClassifier and ACPRegressor described above, again the sampling strategy dictates if you use a Cross-Venn-ABERS (CVAP) or Aggregated Venn-ABERS (AVAP) predictor model. Instead of having to decide on a nonconformity metric as for the conformal models, the Venn-ABERS only take a scoring classifier algorithm and applies isotonic regression to yield the predictions. 
 
 ```java
 // Chose your sampling-strategy Folded or Random, stratified possible
 SamplingStrategy strategy = new RandomSampling(nrModels, calibrationRatio);
+// or one of these:
 new RandomStratifiedSampling(nrModels, calibrationRatio);
 new FoldedSampling(nrFolds);
 new FoldedStratifiedSampling(nrFolds);
 
-// Instantiate using constructors
-AVAPClassification predictor = new AVAPClassification(new LibLinear(LibLinearParameters.defaultClassification()), strategy);
+// Scoring classifier to calibrate
+LogisticRegression lr = new LogisticRegression();
 
-// Or using CPSignFactory
-AVAPClassification predictor = factory.createVAPClassification(factory.createLibLinearClassification(), strategy);
+// Instantiate predictor
+AVAPClassifier predictor = new AVAPClassifier(lr, strategy);
 
-// Train the predictor (using the Problem with training data already loaded!)
+// Load data 
+Dataset data = ..
+
+// Train the predictor 
 predictor.train(data);
 
-// For a new example - do a prediction
-List<SparseFeature> example = ..;
-AVAPClassificationResult result = predictor.predict(example)
+// Predict a new test object
+FeatureVector testObject = ..
+CVAPPrediction<Integer> result = predictor.predict(example)
 
-// can also compute gradient - this is mostly useful for data derived form Signatures Descriptors
-predictor.calculateGradient(example);
-
-// Save predictor
-predictor.setModelInfo(new ModelInfo("CVAP Classification")); // Minimum info is to set the model name
-predictor.save(new File("predictor.jar"));
+// Save the predictor (optionally set some meta info)
+predictor.setModelInfo(new ModelInfo("CVAP Classification")); 
+ConfAISerializer.saveModel(new File("predictor.jar"), null);
 
 // Load a previously saved predictor
-AVAPClassification loadedPredictor = (AVAPClassification) ModelLoader.loadModel(new File("predictor.jar"), null);
+AVAPClassifier loadedPredictor = (AVAPClassifier) ConfAISerializer.loadPredictor(new File("predictor.jar"), null);
 ```
 
-The result from the predict method is a {code}`AVAPClassificationResult` which has several values:
-: - {code}`getProbabilities()` : The probability for each value, this is the most useful value!
-  - {code}`getMeanIntervalWidth()` : The mean with between the predictions for p0 and p1, **lower value -> more certain prediction**
-  - {code}`getMedianIntervalWidth()` : The median with between the predictions for p0 and p1, **lower value -> more certain prediction**
-  - {code}`getIntervals()` : A map with the predicted p0-p1 intervals for each Inductive Venn-ABERS predictor, not interesting for most people
-  - {code}`getP0s()` : Not interesting for most people
-  - {code}`getP1s()` : Not interesting for most people
+The result from the predict method is a `CVAPPrediction` with a type argument of `<Integer>` simply meaning that the classes are of integer type. The reason for the type parameter is that the same class is returned from the ChemVAPClassifier but instead links textual labels to class probabilities. The instance stores all relevant information from the prediction:
+  - `getProbabilities()` : The probability for each class label
+  - `get[Mean|Median]P0P1Width()` : The mean or median width between the predictions for p0 and p1, **lower value -> more certain prediction**. Sometimes referred to as sharpness of the prediction. 
+  - `getLabel0()` : The '0' label 
+  - `getLabel1()` : The '1' label
+  - `getP0List()` : Not interesting for most people
+  - `getP1List()` : Not interesting for most people

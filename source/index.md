@@ -1,6 +1,6 @@
 # CPSign Documentation
 
-CPSign is an Open Source Software tool for QSAR modeling using conformal and probabilistic prediction. Several descriptors can be computed, such as the Signatures molecular descriptor, ECFPs and physico-chemical using the [CDK](https://cdk.github.io/) library, and it includes standard data preprocessing transformations for tasks such as feature scaling and data filtration. It comes with [LibLinear](https://liblinear.bwaldvogel.de/) and [LibSVM](https://github.com/jeffheaton/libsvm-java) for training underlying models, but is extendable. It is written for the Java Virtual Machine (JVM) and can be run on all operating systems. Are you interested in seeing the source code or contribute to the project? Head over to [CPSign's GitHub page](https://github.com/arosbio/cpsign)!
+CPSign is an Open Source Software tool for QSAR modeling using conformal and probabilistic prediction. Several descriptors can be computed, such as the Signatures molecular descriptor, ECFPs and physico-chemical using the [CDK](https://cdk.github.io/) library, and it includes standard data preprocessing transformations for tasks such as feature scaling and data filtration. It comes with [LIBLINEAR](https://liblinear.bwaldvogel.de/) and [LIBSVM](https://github.com/jeffheaton/libsvm-java) for training underlying models, but it is possible to extend to use other algorithms. It is written for the Java Virtual Machine (JVM) and can be run on all operating systems. Are you interested in seeing the source code or contribute to the project? Head over to [CPSign's GitHub page](https://github.com/arosbio/cpsign)!
 
 ## Table of Contents
 
@@ -20,14 +20,3 @@ sections/securing_your_data
 sections/references
 ```
 
-% sections/cli/precompute
-
-% sections/cli/train
-
-% sections/cli/predict
-
-% sections/cli/tune
-
-% sections/cli/crossvalidate
-
-% sections/cli/gensign

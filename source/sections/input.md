@@ -42,12 +42,12 @@ SDFiles are supported in both v2000 and v3000.
 
 ### SMILES as single molecule
 
-The {ref}`predict` and {ref}`online-predict` command can predict single molecules using the `--smiles` parameter, this parameter takes a string of text where the string must start with a valid SMILES and can then optionally include a blank space character (tab, space) and an identifier.
+The {ref}`predict` and {ref}`predict-online` command can predict single molecules using the `--smiles` parameter, this parameter takes a string of text where the string must start with a valid SMILES and can then optionally include a blank space character (tab, space) and an identifier.
 
 ### JSON file format
 
 CPSign supports a [JSON](http://www.json.org/) input format, the format require that the top level starts as a JSON array (meaning that the first
-character must be a hard bracket "`\[`"). Each index of the array is one record and each record **must** include a key-value
+character must be a square bracket "`\[`"). Each index of the array is one record and each record **must** include a key-value
 for SMILES for the molecule. This SMILES key-value pair must have the key "SMILES", "smiles" or "Smiles". Here are some
 examples for the file format (it is not required that the file is properly indented).
 

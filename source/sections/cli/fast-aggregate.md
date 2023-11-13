@@ -15,26 +15,26 @@ The `fast-aggregate` program aggregates partially trained ACP and VAP models, it
 The full usage manual can be retrieved by running command:
 
 ```bash
-> ./cpsign-[version]-uber.jar fast-aggregate
+> ./cpsign-[version]-fatjar.jar fast-aggregate
 ```
 
 ## Example usage
 
 ```bash
-> java -jar cpsign-[version].jar fast-aggregate \
-   --license /path/to/Standard-license.license \
+> java -jar cpsign-[version]-fatjar.jar fast-aggregate \
    -m \
-   models/acp_model_reg_1.cpsign \
-   models/acp_model_reg_2.cpsign \
+   models/acp_model_reg_*.jar \
    --model-out \
-   /tmp/aggregated_reg.cpsign \
+   /tmp/aggregated_reg.jar \
 
-Running with Standard License registered to [Name] at [Company]. Expiry
-date is [Date]
+                         -= CPSign - FAST-AGGREGATE =-
 
-Starting to aggregate models..
-Successfully aggregated 2 models.
-
+Validating arguments... [done]
+Starting to aggregate models...
+Successfully aggregated 5 models.
 Aggregated model saved at:
-/private/tmp/aggregated_reg.cpsign
+/tmp/aggregated_reg.jar
+
 ```
+
+Note that in the above we used a glob pattern to pick all models named `acp_model_reg_*.jar` in order to match a pattern of several files using the wild card character `'*'`. 

@@ -1,15 +1,15 @@
-(custom)=
 
 # Adding custom extensions to CPSign
 
-As CPSign is now an Open Source project, it is fully possible to add your own improvements and making pull request on GitHub. Here we go through how you extend the code base with new functionality, whether it is a new nonconformity measure, metric or anything else.
+As CPSign is now an Open Source project, it is fully possible to add your own improvements and extensions by making pull request on GitHub. Here we go through how you extend the code base with new functionality, whether it is a new nonconformity measure, metric or anything else.
 
 ```{contents} Table of Contents
 :backlinks: top
 :depth: 3
 ```
 
-(conf-ai-extensions)=
+(confai-extensions)=
+
 ## ConfAI extensions 
 
 CPSign is relying on the [Java ServiceLoader](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/ServiceLoader.html) for discovering classes that should be instantiated. The above link should provide enough information in how to write and make your custom additions available to CPSign. The following classes can be extended and discovered as services:
@@ -24,11 +24,11 @@ com.arosbio.ml.metrics.Metric
 com.arosbio.ml.testing.TestingStrategy
 ```
 
+One example of providing such extensions is our [CPSign-DL4J](https://github.com/arosbio/cpsign-dl4j) extension, which provides deep neural network implementations for CPSign. 
 
-(cpsign-extensions)=
 ## CPSign-API extensions
 
-Apart from all extensions available under [ConfAI extensions](conf-ai-extensions) above, at the chemistry level CPSign can be extended with custom descriptors by adding your implementations of the interface `com.arosbio.cheminf.descriptors.ChemDescriptor`.
+Apart from all extensions available under [ConfAI extensions](confai-extensions) above, at the chemistry level CPSign can be extended with custom descriptors by adding your implementations of the interface `com.arosbio.cheminf.descriptors.ChemDescriptor`.
 
 
 (encryption-extension)=

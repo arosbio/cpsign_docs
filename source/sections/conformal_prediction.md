@@ -1,5 +1,5 @@
 
-
+(cp-intro)=
 # Conformal Prediction Background
 
 Conformal Prediction is described in greater depth in [[4-5, 10]](references.md), but here is the short introduction of the basics and the specifics of how CPSign names and computes certain things. 
@@ -123,6 +123,7 @@ The molecule gradients will theoretically take any value on the real axis for ea
 The Significant Signature of a molecule is simply the signature that produced the largest absolute gradient value in the *signature based* gradient. That atoms part of the signature can then be highlighted in depictions.
 
 
+(nonconf-measure)=
 ## Nonconformity measures
 
 A central concept of Conformal Prediction is the nonconformity measure, which is simply a way to compute how different an observation is compared to the other observations in the dataset (see [[4-5]](references.md) for a thorough explanation).

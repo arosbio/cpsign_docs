@@ -3,7 +3,7 @@
 
 # `model-info`
 
-The `model-info` program reads a CPSign model and prints information about it, i.e. what version of CPSign was used to build the model and should thus be able to use it.
+The `model-info` program reads a CPSign model or precomputed data set and prints information about it, i.e., what version of CPSign was used to build the model and should thus be able to use it.
 
 ```{contents} Table of Contents
 :backlinks: top
@@ -15,15 +15,17 @@ The `model-info` program reads a CPSign model and prints information about it, i
 The full usage manual can be retrieved by running command:
 
 ```bash
-> ./cpsign-[version]-uber.jar model-info
+> ./cpsign-[version]-fatjar.jar model-info
 ```
 
 ## Example Usage
 
+Here using the `-v | --verbose` flag to get more information than the build version of CPSign. 
+
 ```bash
-> java -jar cpsign-[version].jar check-version \
+> ./cpsign-[version]-fatjar.jar model-info \
    --model-in /path/to/acp_model.jar \
-   --full
+   -v
 
 Model Info:
 -----------
@@ -36,9 +38,9 @@ Predictor type       : Signatures ACP Classification predictor
 Observations used    : 123
 Seed used            : 4885
 
-> java -jar cpsign-[version].jar check-version \
+> ./cpsign-[version]-fatjar.jar model-info \
    --model-in /path/to/acp_model.jar \
-   --full \
+   -v \
    -rf json
 
 {
