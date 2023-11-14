@@ -8,6 +8,6 @@
 - Cross-conformal Prediction (CCP) according to [[8]](references.md) for binary and multi-label classification, as well as regression.
 - Calculation of p-values using standard approach, smoothed and linear/splines interpolation, described in [[11]](references.md) and [[12]](references.md).
 - Cross Venn-ABERS Prediction (CVAP) according to [[9]](references.md) for probabilistic (binary) classification.
-- Significant Signature calculation and feature highlighting according to the gradient method described in [[5]](references.md).
-- Hyper-parameter tuning using exhaustive grid search, using cross-validation or single test-train splitting, otherwise using default values according to [[6]](references.md).
+- Significant Signature calculation and feature highlighting according to the Gradient method described in [[5]](references.md).
+- Parameter tuning using exhaustive grid search, using cross-validation or single test-train splitting, otherwise using default values according to [[6]](references.md).
 - [LIBLINEAR](https://liblinear.bwaldvogel.de/) and [LIBSVM](https://github.com/jeffheaton/libsvm-java) for training machine learning models used in CP/Venn-ABERS.
