@@ -23,6 +23,4 @@ Run `make html` from the root directory of the repository. This will build the h
 
 ## Update 'live' documentation
 
-The docs website is updated using two GitHub actions located in `.github/workflows/`:
-- `build_and_push_docs.yaml`: triggers on git "Tag" starting with `v-` which creates a new sub-directory with the docs on Kuben for the given tag-id/version that should correspond to the version of CPSign.
-- `build_latest.yaml`: triggers on push to branch `master` and updates the https://arosbio.com/cpsign/docs/latest/ pages.
+The documentation is now hosted a [ReadTheDocs](https://cpsign.readthedocs.io/en/latest/) and the build is handled using a webhook that monitors changes pushed to github. Multiple versions of the documentation should be handled by using tags and sorted by the readthedocs website.
