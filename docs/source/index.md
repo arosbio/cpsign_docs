@@ -14,6 +14,7 @@ sections/license
 sections/cli/CLI
 sections/api/API
 sections/depiction/images
+sections/publish_models
 sections/input
 sections/customization
 sections/securing_your_data
