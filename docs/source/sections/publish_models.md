@@ -11,7 +11,7 @@ The QSAR models, i.e., the ones that predicts directly on chemical compounds are
 
 ![Draw GUI](imgs/draw_ui.png)
 
-In the `Draw UI` it is possible to input molecules in common chemical formats as well as draw/edit the molecules interactively - and get the predicted atom contributions rendered below the input window. Due to the rapid predictions these can be used interactively and will update as you edit the molecule.
+In the `Draw UI` it is possible to input molecules in common chemical formats as well as draw/edit the molecules interactively - and get the predicted atom contributions rendered below the input window. Due to rapid prediction time this can be used interactively and will update as you edit the molecule.
 
 ## Deploying a model
 Deploying a model is easily achieved using our prebuilt Docker images that can be found at GitHub Container repository: [CPSign predict services packages](https://github.com/orgs/arosbio/packages?repo_name=cpsign_predict_services). There is one image for each model type and deploying your own model and can easily be achieved by e.g. extending the image by simply copying the model you wish to deploy;
@@ -35,7 +35,7 @@ Then you can run it using:
 docker run -p 80:8080 -u jetty [YOUR TAG]
 ```
 
-The web server is by default listening on port `8080` and here we forward port 80 to 8080 so we can simply interact with it using your web browser. E.g. to check that it is running enter `localhost/api/v2/health` or `localhost/api/v2/modelInfo` in your browser.
+The web server is by default listening on port `8080` and in the above line we forward port `80` to `8080` so you can interact with it using your web browser without specifying a custom port. E.g. to check that it is running enter `localhost/api/v2/health` or `localhost/api/v2/modelInfo` in your browser.
 
 #### Tags
 Apart from the three different server types, which is dictated by the type of model you wish to deploy there are different tags depending on the *flavor* (See [Introduction](#introduction)). The tags with suffix `-full` includes the Swagger UI and the Draw UI, whereas the tags without the suffix are the more lightweight images that lack these additional resources. 
@@ -52,15 +52,14 @@ docker run -p 80:8080 \
     ghcr.io/arosbio/cpsign-cp-clf-server:latest
 ```
 
-In this example you mount your current directory (`source="$(pwd)"`) to the directory `/app/data/` inside the container - your `clf-model.jar` is thus located in `/app/data/clf-model.jar` - which we specify with the `--env` parameter. 
-
+In this example you mount your current directory (`source="$(pwd)"`) to the directory `/app/data/` inside the container - your `clf-model.jar` is thus located in `/app/data/clf-model.jar` - which we specify to `MODEL_URI` using the `--env` parameter. 
 
 
 
 
 ## Publish models at SciLifeLab Serve
 
-This sections is a how-to-guide for how to publish models using the [SciLifeLab Serve](https://serve.scilifelab.se/) facility, mainly intended for researchers to e.g. publish models in connection with a published manuscript. To publish services at SciLifeLab you need to publish public Docker images at an online repository, this guide details how this is done using the [GitHub docker registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry). To follow this guide you need to have a public github repository that your models and images can be connected to, this can either be a personal repository or one linked to an organization (e.g. https://github.com/pharmbio).
+This sections is a how-to-guide for how to publish models using the [SciLifeLab Serve](https://serve.scilifelab.se/) facility, mainly intended for researchers to e.g. publish models in connection with a published manuscript. To publish services at SciLifeLab you need to publish public Docker images at an online container repository, this guide details how this is done using the [GitHub docker registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry). To follow this guide you need to have a public GitHub repository that your models and images can be connected to, this can either be a personal repository or one linked to an organization (e.g. https://github.com/pharmbio).
 
 
 
@@ -71,15 +70,15 @@ Building and publishing the Docker image can be achieved in two main ways; (1) b
 ### 1.1 Set up the Docker build
 
 To publish your models at Serve they have two hard requirements;
-- The container must run as user 1000
+- The container must run as user `1000`
 - The container must have a start-up script called `start-script.sh` that should be used as entrypoint
 
-Unfortunately these requirements forces the Docker build to be a bit more complex as the default user from the jetty base images is user `"jetty"` with id `999`. To comply with these requirements follow these steps:
+Unfortunately these requirements forces the Docker build to be a bit more complex as the default user from the jetty base images is user `"jetty"` with id `999`. To comply with the requirements posed by Serve follow these steps:
 
 1. Create a new directory in your repository that will serve as build directory for the Docker image. 
-2. Place your CPSign built model in the build directory. 
+2. Place your model that you want to deploy in the build directory. 
 3. Download and place the [Dockerfile](extras/Dockerfile) in your build directory. You need to replace all values inside square brackets, the ones starting with `[OPTIONAL ` can be removed. **Note:** the `[SERVER-TYPE]` must match with your model type, see available types at [CPSign predict services](https://github.com/orgs/arosbio/packages?repo_name=cpsign_predict_services). In case you want to serve the Swagger UI and [Draw UI](#introduction) as part of your service, specify a tag with a `-full` suffix. For an example of a complete Dockerfile look at our example project [cpLogD-v2.0 Dockerfile](https://github.com/pharmbio/cplogd-v2.0/blob/main/generate_service/Dockerfile). **Note:** the line `LABEL org.opencontainers.image.source=[URL TO YOUR GITHUB REPO]` is **required** for GitHub to be able to link the images to your own repository. 
-4. Download the [start-script.sh](extras/start-script.sh) and place it in your build directory. 
+4. Download the [start-script.sh](extras/start-script.sh) and place it in your build directory (you do not have to make any updates to it). 
 
 Now it is time to build the image, either follow [build remotely](#12-build-image-remotely-on-github) or [build locally](#12-build-image-locally).
 
@@ -168,7 +167,7 @@ Now you should have a publicly available docker image that is ready to publish. 
 
 - **Configure it.** Here you can give it a name, set permissions (visibility), give it a specific subdomain to use etc. This could look something like this:
     ![Configure App](imgs/scilifelab_serve_app_setting.png)
-    Note that you must set the `Port` to "8080" as that is the port exposed in the Docker container. The Serve infrastructure will forward the normal web browser port (80) to the port exposed in the container. You do not need a Persistent Volume as everything is contained within the docker image. It will take a little while for the service to start up, once the status is "Running" you should be able to press the name and go to the URL of the service (`<your subdomain>.serve.scilifelab.se`). This URL will be a Jetty backup-page unless you specified a tag with a `-full` suffix when writing your Dockerfile. If you add `/api/v2/modelInfo` after this URL (i.e., `<your subdomain>.serve.scilifelab.se/api/v2/modelInfo`) you should get the same information as when you tested it on your local machine. 
+    Note that you must set the `Port` to `8080` as that is the port exposed in the Docker container. The Serve infrastructure will forward the normal HTTP port (80) to the port exposed in the container. You do not need a Persistent Volume as everything is contained within the docker image. It will take a little while for the service to start up, once the status is "Running" you should be able to press the name and go to the URL of the service (`<your subdomain>.serve.scilifelab.se`). This URL will be a Jetty backup-page unless you specified a tag with a `-full` suffix when writing your Dockerfile in step 1 above. If you add `/api/v2/modelInfo` after this URL (i.e., `<your subdomain>.serve.scilifelab.se/api/v2/modelInfo`) you should get the same information as when you tested it on your local machine.
 
 
 **Now you should successfully have published your model!**
