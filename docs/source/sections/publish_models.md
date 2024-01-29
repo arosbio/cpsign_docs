@@ -113,8 +113,8 @@ Here you do not have to push the contents of your docker build directory to GitH
     # Save token in CR_TOKEN
     export CR_TOKEN=[your token]
     # Login
-    echo $CR_PAT | docker login ghcr.io -u [USERNAME] --password-stdin
-    > Login successful
+    echo $CR_TOKEN | docker login ghcr.io -u [USERNAME] --password-stdin
+    > Login Succeeded
     ```
 
     Note that these are subject to change, so for more information read the current documentation at [GitHub documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic) (or other relevant information in case their recommended workflow changes).
