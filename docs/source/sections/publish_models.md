@@ -1,6 +1,6 @@
 # Publish models
 
-QSAR models built using CPSign can be published as web servers that can be interacted with using REST, and which are automatically documented using [OpenAPI](https://www.openapis.org/) specifications. The software required for this is located in a separate repository: [CPSign predict services](https://github.com/arosbio/cpsign_predict_services) which also contain more information. Here we first go through the basics of how these work and then detail the steps required to publish models at [SciLifeLab Serve](https://serve.scilifelab.se/). 
+QSAR models built using CPSign can be published as web servers that can be interacted with using REST, and which are automatically documented using [OpenAPI](https://www.openapis.org/) specifications. The software required for this is located in a separate repository: [CPSign predict services](https://github.com/arosbio/cpsign_predict_services) which also contain more information. To publish and work with out prebuilt servers you need to use [Docker](https://www.docker.com/), e.g. by installing [Docker desktop](https://www.docker.com/products/docker-desktop/) on your machine. Here we first go through the basics of how these work and then detail the steps required to publish models at [SciLifeLab Serve](https://serve.scilifelab.se/). 
 
 ```{contents} Table of Contents
 :depth: 2
@@ -59,7 +59,7 @@ In this example you mount your current directory (`source="$(pwd)"`) to the dire
 
 ## Publish models at SciLifeLab Serve
 
-This sections is a how-to-guide for how to publish models using the [SciLifeLab Serve](https://serve.scilifelab.se/) facility, mainly intended for researchers to e.g. publish models in connection with a published manuscript. To publish services at SciLifeLab you need to publish public Docker images at an online container repository, this guide details how this is done using the [GitHub docker registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry). To follow this guide you need to have a public GitHub repository that your models and images can be connected to, this can either be a personal repository or one linked to an organization (e.g. https://github.com/pharmbio).
+This sections is a how-to-guide for how to publish models using the [SciLifeLab Serve](https://serve.scilifelab.se/) facility, mainly intended for researchers to e.g. publish models in connection with a published manuscript. To publish services at SciLifeLab you need to publish public Docker images at an online container repository, this guide details how this is done using the [GitHub docker registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-docker-registry). To follow this guide you need to have a public GitHub repository that your models and images can be connected to, this can either be a personal repository or one linked to an organization (e.g. https://github.com/pharmbio). **Note:** if you either wish to build your Docker image locally or if you wish to test it out locally you need to have [Docker desktop](https://www.docker.com/products/docker-desktop/) installed. 
 
 
 
