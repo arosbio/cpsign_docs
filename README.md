@@ -7,19 +7,11 @@ This project is used for documenting CPSign using [Sphinx](http://www.sphinx-doc
 
 ### Installation of required packages
 
-You need to have Python, [Sphinx](http://www.sphinx-doc.org/en/stable/) and the [ReadTheDocs scheme](https://github.com/snide/sphinx_rtd_theme) installed on your machine, which can either be installed using `pip`: 
-```
-pip install --user sphinx
-pip install --user sphinx-rtd-theme
-```
-Or by `conda` using the supplied conda environment file:
-```
-conda env create -f conda.env.yml
-```
+You need to have Python, and install the dependencies in the [requirements](docs/requirements.txt) file. 
 
 ### Run build
 
-Run `make html` from the root directory of the repository. This will build the html-files and put them in the `build/html` subfolder. Open the `index.html` file and check your changes.
+Building the documentation should be performed from the `docs` directory, where it can be achieved by running `make html`.  This will build the html-files and put them in the `docs/build/html` subfolder. Open the `index.html` file and check your changes.
 
 ## Update 'live' documentation
 
