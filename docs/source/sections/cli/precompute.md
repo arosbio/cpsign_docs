@@ -88,3 +88,35 @@ This feature is extendable but the default ones are broadly;
  - **CDK physchem**: A broad range of physico-chemical descriptors as implemented in CDK `IMolecularDescriptor` instances. 
  - **Supplied**: User-supplied descriptors, which are loaded from input in the form of columns in CSV format or properties in SDFiles. This descriptors allow users to use their own descriptors from other software/measurements and make them available for modeling. 
 
+
+## Custom descriptors
+Custom descriptors can be entered in CPSign using the `Supplied` descriptor, which will look for properties given in the CSV or SDF input file(s). To exemplify this, lets consider that your CSV contains a header with the columns `SMILES,target,feature1,feature2,feature3` - where `target` is the property that you wish to model and feature 1-3 are custom features. To specify this at the CLI you can do so using one of these arguments;
+
+```bash
+# Either explicitly name the ones you want to add
+--descriptors Supplied:props=feature1,feature2,feature3
+# Or by using all properties, except some explicit ones
+--descriptors Supplied:props=all,-SMILES,-target
+```
+
+The first option is to list all properties explicitly that you wish to use. But if you have many custom features it might be easier to instead include all properties (`all`) and then explicitly omit the properties that should not be included. Omission is performed by pre-pending a property/header name with a `-` character. In this case you should for instance remove the SMILES column and the column including the values that you want to model. The `--descriptors` parameter can be given several times so the first line is also equivalent with the following three lines;
+
+```bash
+--descriptors Supplied:props=feature1
+--descriptors Supplied:props=feature2
+--descriptors Supplied:props=feature3
+```
+
+If you want to use the default descriptor (Signatures) together with your custom descriptors, you will also have to explicitly specify `--descriptors Signatures` (otherwise your custom descriptors will override the default descriptor).
+
+**Note 1:** Due to the syntax in the CLI the header column names cannot include a `,` character as that will be split into two separate features. 
+
+**Note 2:** Header names and input to the `--descriptors` parameter will be treated case-insensitive.
+
+**Note 3:** Feature values must be numerical values, i.e., if your data contains categorical values such as `low/medium/high` these must be converted into numerical values such as `0/1/2` before reading it into CPSign.
+
+**Note 4:** By default CPSign will allow for missing values and include a `NaN` (not a number) if e.g. a record do not have a valid entry for one of the columns. Thus using custom features require more care in regards to data sanitization, e.g. removing/imputing missing values and scaling of features.
+
+**Note 5:** A CSV input file is required to include SMILES, even if using exclusively custom descriptors. If you only want to perform modeling using custom descriptors without including chemistry you have to use the `conf-ai` module instead which only exists as a Java API.
+
+
