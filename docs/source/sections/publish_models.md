@@ -77,7 +77,7 @@ Unfortunately these requirements forces the Docker build to be a bit more comple
 
 1. Create a new directory in your repository that will serve as build directory for the Docker image. 
 2. Place your model that you want to deploy in the build directory. 
-3. Download and place the [Dockerfile](extras/Dockerfile) in your build directory. You need to replace all values inside square brackets, the ones starting with `[OPTIONAL ` can be removed. **Note:** the `[SERVER-TYPE]` must match with your model type, see available types at [CPSign predict services](https://github.com/orgs/arosbio/packages?repo_name=cpsign_predict_services). In case you want to serve the Swagger UI and [Draw UI](#introduction) as part of your service, specify a tag with a `-full` suffix. For an example of a complete Dockerfile look at our example project [cpLogD-v2.0 Dockerfile](https://github.com/pharmbio/cplogd-v2.0/blob/main/generate_service/Dockerfile). **Note:** the line `LABEL org.opencontainers.image.source=[URL TO YOUR GITHUB REPO]` is **required** for GitHub to be able to link the images to your own repository. 
+3. Download and place the [Dockerfile](extras/Dockerfile) in your build directory. You need to replace all values inside square brackets, the ones starting with `[OPTIONAL ` can be removed. **Note:** the `[SERVER-TYPE]` must match with your model type, see available types at [CPSign predict services](https://github.com/orgs/arosbio/packages?repo_name=cpsign_predict_services). In case you want to serve the Swagger UI and [Draw UI](#introduction) as part of your service, specify a tag with a `-full` suffix. For an example of a complete Dockerfile look at our example project [cpLogD-v2.0 Dockerfile](https://github.com/pharmbio/cplogd-v2.0/blob/main/generate_service/Dockerfile). **Note:** the line `LABEL org.opencontainers.image.source=[URL TO YOUR GITHUB REPO]` is **required** for GitHub to be able to link the images to your specific repository. 
 4. Download the [start-script.sh](extras/start-script.sh) and place it in your build directory (you do not have to make any updates to it). 
 
 Now it is time to build the image, either follow [build remotely](#12-build-image-remotely-on-github) or [build locally](#12-build-image-locally).
@@ -171,5 +171,12 @@ Now you should have a publicly available docker image that is ready to publish. 
 
 
 **Now you should successfully have published your model!**
+
+
+### Final remarks
+
+#### How to update your model
+
+Currently the Serve system will cache all Docker images, meaning that in case you want to update your service for any reason it is *not sufficient* to overwrite your image at GitHub container repository and use the same tag. Instead you have to update the tag, e.g. use tag `v1` first and then replace it with `v2` for your next version. Then you can simply go into the `settings` in Serve and update to your new tag.
 
 
